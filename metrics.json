@@ -1,0 +1,269 @@
+{
+ "loop_champion_dual_fold": {
+  "top5": {
+   "wf": {
+    "auc": 0.8016641962644135,
+    "prauc": 0.2911632762726324,
+    "brier": 0.07432422569596028,
+    "logloss": 0.2567637539068494,
+    "ece": 0.05426602760091344,
+    "lr_price_auc": 0.7880902552417828,
+    "lr_ext_auc": 0.8344565619207214,
+    "n": 10344,
+    "by_position": {
+     "QB": 0.7819697169190257,
+     "RB": 0.6912681326937525,
+     "WR": 0.8853287889244116,
+     "TE": 0.7967230974136185
+    }
+   },
+   "holdout": {
+    "auc": 0.8693526870214525,
+    "prauc": 0.3923762739673836,
+    "brier": 0.0667966123650381,
+    "logloss": 0.2267616853120742,
+    "ece": 0.022404117150934096,
+    "lr_price_auc": 0.8188563363181355,
+    "lr_ext_auc": 0.8670418915163274,
+    "n": 18523,
+    "by_position": {
+     "QB": 0.7567348297748595,
+     "RB": 0.9516035973006962,
+     "WR": 0.872389617072369,
+     "TE": 0.7988945564966905
+    }
+   }
+  },
+  "starter": {
+   "wf": {
+    "auc": 0.7894231891137115,
+    "prauc": 0.7683833921378493,
+    "brier": 0.18573189294929998,
+    "logloss": 0.5546961746342168,
+    "ece": 0.040040282138593224,
+    "lr_price_auc": 0.7593874357493535,
+    "lr_ext_auc": 0.7838387365727347,
+    "n": 10344,
+    "by_position": {
+     "QB": 0.7332083882765993,
+     "RB": 0.760993322415074,
+     "WR": 0.8372543831063025,
+     "TE": 0.7807988836425415
+    }
+   },
+   "holdout": {
+    "auc": 0.807705000431165,
+    "prauc": 0.7455790522365386,
+    "brier": 0.1789558464239853,
+    "logloss": 0.5386361587589547,
+    "ece": 0.05193069105973279,
+    "lr_price_auc": 0.7724952781718073,
+    "lr_ext_auc": 0.7893082070485185,
+    "n": 18523,
+    "by_position": {
+     "QB": 0.7639305946341673,
+     "RB": 0.8264446772783957,
+     "WR": 0.8017302276740966,
+     "TE": 0.7263172731358731
+    }
+   }
+  },
+  "vor": {
+   "wf": {
+    "with_price": {
+     "mae": 67.69127746254529,
+     "r2": 0.281696292697445
+    },
+    "profile_only": {
+     "mae": 66.91666988950053,
+     "r2": 0.2944474031603137
+    }
+   },
+   "holdout": {
+    "with_price": {
+     "mae": 64.42123810624298,
+     "r2": 0.3806244830115796
+    },
+    "profile_only": {
+     "mae": 64.33176360040822,
+     "r2": 0.3825252948921104
+    }
+   }
+  }
+ },
+ "head_reliability": {
+  "top5": {
+   "QB": {
+    "xgb_auc": 0.7567348297748595,
+    "ensemble_auc": 0.7447132850628387,
+    "lr_price_auc": 0.6930978531149641,
+    "lr_ext_auc": 0.7318530475315458,
+    "ensemble_auc_ci95": [
+     0.5691716061015306,
+     0.8943828404751513
+    ],
+    "best_tool": "xgb",
+    "note": "very wide CI - ranking only, do not treat as odds"
+   },
+   "RB": {
+    "xgb_auc": 0.9516035973006962,
+    "ensemble_auc": 0.9567785915443064,
+    "lr_price_auc": 0.9394875042065924,
+    "lr_ext_auc": 0.95810964593776,
+    "ensemble_auc_ci95": [
+     0.9165606477554377,
+     0.984652892123671
+    ],
+    "best_tool": "lr_extended",
+    "note": "p_* ships the ensemble; lr_extended was marginally better here"
+   },
+   "WR": {
+    "xgb_auc": 0.872389617072369,
+    "ensemble_auc": 0.8817223167193151,
+    "lr_price_auc": 0.8787024199196697,
+    "lr_ext_auc": 0.8859754005803233,
+    "ensemble_auc_ci95": [
+     0.7521103482771173,
+     0.9903521093189848
+    ],
+    "best_tool": "lr_extended",
+    "note": "p_* ships the ensemble; lr_extended was marginally better here"
+   },
+   "TE": {
+    "xgb_auc": 0.7988945564966905,
+    "ensemble_auc": 0.7818282974818141,
+    "lr_price_auc": 0.7517868563495407,
+    "lr_ext_auc": 0.7687834401859391,
+    "ensemble_auc_ci95": [
+     0.6437610359853686,
+     0.890971980215789
+    ],
+    "best_tool": "xgb",
+    "note": "p_* ships the ensemble; xgb was marginally better here"
+   }
+  },
+  "starter": {
+   "QB": {
+    "xgb_auc": 0.7639305946341673,
+    "ensemble_auc": 0.7622102600074085,
+    "lr_price_auc": 0.7291405595269057,
+    "lr_ext_auc": 0.7499288484660606,
+    "ensemble_auc_ci95": [
+     0.6459709540885654,
+     0.8909446058618898
+    ],
+    "best_tool": "xgb",
+    "note": "p_* ships the ensemble; xgb was marginally better here"
+   },
+   "RB": {
+    "xgb_auc": 0.8264446772783957,
+    "ensemble_auc": 0.8247404235685978,
+    "lr_price_auc": 0.805629183301492,
+    "lr_ext_auc": 0.8177823966181309,
+    "ensemble_auc_ci95": [
+     0.760428597447303,
+     0.882958389676562
+    ],
+    "best_tool": "xgb",
+    "note": "p_* ships the ensemble; xgb was marginally better here"
+   },
+   "WR": {
+    "xgb_auc": 0.8017302276740966,
+    "ensemble_auc": 0.799025276665962,
+    "lr_price_auc": 0.7622026650620155,
+    "lr_ext_auc": 0.7923211132097342,
+    "ensemble_auc_ci95": [
+     0.7322404444460426,
+     0.8549094236607117
+    ],
+    "best_tool": "xgb",
+    "note": "p_* ships the ensemble; xgb was marginally better here"
+   },
+   "TE": {
+    "xgb_auc": 0.7263172731358731,
+    "ensemble_auc": 0.7259869831884836,
+    "lr_price_auc": 0.7057301071385578,
+    "lr_ext_auc": 0.7081017220446763,
+    "ensemble_auc_ci95": [
+     0.5903879466951886,
+     0.8378663775365172
+    ],
+    "best_tool": "xgb",
+    "note": "p_* ships the ensemble; xgb was marginally better here"
+   }
+  }
+ },
+ "disagreement_holdout": {
+  "top5": [
+   {
+    "quintile": 0,
+    "n": 3705,
+    "mean_price": 10.414979757085021,
+    "actual_minus_lr": -0.05148219484334265
+   },
+   {
+    "quintile": 1,
+    "n": 3712,
+    "mean_price": 3.474811422413793,
+    "actual_minus_lr": -0.030079763983321135
+   },
+   {
+    "quintile": 2,
+    "n": 3702,
+    "mean_price": 6.4625877903835764,
+    "actual_minus_lr": -0.030006830105669367
+   },
+   {
+    "quintile": 3,
+    "n": 3705,
+    "mean_price": 10.595951417004049,
+    "actual_minus_lr": -0.007385911065684939
+   },
+   {
+    "quintile": 4,
+    "n": 3699,
+    "mean_price": 15.171532846715328,
+    "actual_minus_lr": 0.13475408740713485
+   }
+  ],
+  "starter": [
+   {
+    "quintile": 0,
+    "n": 3706,
+    "mean_price": 4.115286022665947,
+    "actual_minus_lr": -0.19215382241567724
+   },
+   {
+    "quintile": 1,
+    "n": 3704,
+    "mean_price": 11.674203563714903,
+    "actual_minus_lr": -0.07762021171983441
+   },
+   {
+    "quintile": 2,
+    "n": 3707,
+    "mean_price": 12.978082007013757,
+    "actual_minus_lr": -0.019309621144027678
+   },
+   {
+    "quintile": 3,
+    "n": 3702,
+    "mean_price": 9.458198271204754,
+    "actual_minus_lr": 0.04575831062727492
+   },
+   {
+    "quintile": 4,
+    "n": 3704,
+    "mean_price": 7.875674946004319,
+    "actual_minus_lr": 0.17876659261374156
+   }
+  ]
+ },
+ "fair_price_k": 0.1676076520240519,
+ "fair_price_k_by_position": {
+  "QB": 0.1291754664013201,
+  "RB": 0.22910602546916856,
+  "TE": 0.17699827857302286,
+  "WR": 0.16432353047983858
+ }
+}
