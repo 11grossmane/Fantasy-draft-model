@@ -1,0 +1,130 @@
+{
+ "LAR": {
+  "rank": 1,
+  "tier": "top"
+ },
+ "NE": {
+  "rank": 2,
+  "tier": "top"
+ },
+ "DAL": {
+  "rank": 3,
+  "tier": "top"
+ },
+ "BUF": {
+  "rank": 4,
+  "tier": "top"
+ },
+ "HOU": {
+  "rank": 5,
+  "tier": "top"
+ },
+ "DET": {
+  "rank": 6,
+  "tier": "top"
+ },
+ "DEN": {
+  "rank": 7,
+  "tier": "top"
+ },
+ "SF": {
+  "rank": 8,
+  "tier": "top"
+ },
+ "SEA": {
+  "rank": 9,
+  "tier": "top"
+ },
+ "CIN": {
+  "rank": 10,
+  "tier": "top"
+ },
+ "PHI": {
+  "rank": 11,
+  "tier": "mid"
+ },
+ "LAC": {
+  "rank": 12,
+  "tier": "mid"
+ },
+ "CHI": {
+  "rank": 13,
+  "tier": "mid"
+ },
+ "IND": {
+  "rank": 14,
+  "tier": "mid"
+ },
+ "ATL": {
+  "rank": 15,
+  "tier": "mid"
+ },
+ "NO": {
+  "rank": 16,
+  "tier": "mid"
+ },
+ "PIT": {
+  "rank": 17,
+  "tier": "mid"
+ },
+ "JAX": {
+  "rank": 18,
+  "tier": "mid"
+ },
+ "TB": {
+  "rank": 19,
+  "tier": "mid"
+ },
+ "KC": {
+  "rank": 20,
+  "tier": "mid"
+ },
+ "ARI": {
+  "rank": 21,
+  "tier": "mid"
+ },
+ "BAL": {
+  "rank": 22,
+  "tier": "bottom"
+ },
+ "NYG": {
+  "rank": 23,
+  "tier": "bottom"
+ },
+ "TEN": {
+  "rank": 24,
+  "tier": "bottom"
+ },
+ "MIN": {
+  "rank": 25,
+  "tier": "bottom"
+ },
+ "WAS": {
+  "rank": 26,
+  "tier": "bottom"
+ },
+ "CAR": {
+  "rank": 27,
+  "tier": "bottom"
+ },
+ "GB": {
+  "rank": 28,
+  "tier": "bottom"
+ },
+ "NYJ": {
+  "rank": 29,
+  "tier": "bottom"
+ },
+ "LV": {
+  "rank": 30,
+  "tier": "bottom"
+ },
+ "CLE": {
+  "rank": 31,
+  "tier": "bottom"
+ },
+ "MIA": {
+  "rank": 32,
+  "tier": "bottom"
+ }
+}
