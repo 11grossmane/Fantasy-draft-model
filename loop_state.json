@@ -1,0 +1,288 @@
+{
+ "champion_spec": {
+  "feats": [
+   "price_norm",
+   "age",
+   "missed_prior",
+   "missed5",
+   "has_prior",
+   "pos_QB",
+   "pos_RB",
+   "pos_WR",
+   "pos_TE",
+   "ecr_overall",
+   "ecr_pos",
+   "ecr_sd",
+   "ecr_overall_log",
+   "ecr_pos_log",
+   "prior_pts_ppr",
+   "prior_ppg_ppr",
+   "prior_rank_ppr",
+   "prior_snap_share",
+   "prior_target_share",
+   "prior_rush_share",
+   "prior_opp_pg",
+   "years_exp",
+   "draft_round",
+   "draft_pick",
+   "age_sq",
+   "exp_youth",
+   "ppg_x_snap",
+   "ppg_per_dollar",
+   "price_x_age",
+   "ecr_vs_prior_rank",
+   "price_per_ecr"
+  ],
+  "params": "D_d2_reg",
+  "decay": {
+   "top5": 0.7,
+   "starter": 0.85
+  },
+  "weight_mode": "decay",
+  "ensemble_w": 0.5,
+  "pos_blend": {},
+  "calibrator": null,
+  "vor_feats_extra": [],
+  "feats_by_target": {
+   "top5": [
+    "price_norm",
+    "age",
+    "missed_prior",
+    "missed5",
+    "has_prior",
+    "pos_QB",
+    "pos_RB",
+    "pos_WR",
+    "pos_TE",
+    "ecr_overall",
+    "ecr_pos",
+    "ecr_sd",
+    "ecr_overall_log",
+    "ecr_pos_log",
+    "prior_pts_ppr",
+    "prior_ppg_ppr",
+    "prior_rank_ppr",
+    "prior_snap_share",
+    "prior_target_share",
+    "prior_rush_share",
+    "prior_opp_pg",
+    "years_exp",
+    "draft_round",
+    "draft_pick",
+    "age_sq",
+    "exp_youth",
+    "ppg_x_snap",
+    "ppg_per_dollar",
+    "price_x_age",
+    "ecr_vs_prior_rank",
+    "price_per_ecr"
+   ],
+   "starter": [
+    "price_norm",
+    "age",
+    "missed_prior",
+    "missed5",
+    "has_prior",
+    "pos_QB",
+    "pos_RB",
+    "pos_WR",
+    "pos_TE",
+    "ecr_overall",
+    "ecr_pos",
+    "ecr_sd",
+    "ecr_overall_log",
+    "ecr_pos_log",
+    "prior_pts_ppr",
+    "prior_ppg_ppr",
+    "prior_rank_ppr",
+    "prior_snap_share",
+    "prior_target_share",
+    "prior_rush_share",
+    "prior_opp_pg",
+    "years_exp",
+    "draft_round",
+    "draft_pick",
+    "age_sq",
+    "exp_youth",
+    "ppg_x_snap",
+    "ppg_per_dollar",
+    "price_x_age",
+    "ecr_vs_prior_rank",
+    "price_per_ecr",
+    "prior_pts_per_opp",
+    "prior_pts_per_snap",
+    "prior_catch_rate",
+    "prior_adot",
+    "prior_rz_share",
+    "prior_pass_att_pg",
+    "prior_pass_rtg",
+    "prior_pass_td_rate",
+    "prior_qb_rush_pg"
+   ]
+  }
+ },
+ "champion_metrics": {
+  "top5_wf": {
+   "auc": 0.8017,
+   "brier": 0.0743
+  },
+  "top5_holdout": {
+   "auc": 0.8694,
+   "brier": 0.0668
+  },
+  "starter_wf": {
+   "auc": 0.7894,
+   "brier": 0.1857
+  },
+  "starter_holdout": {
+   "auc": 0.8077,
+   "brier": 0.179
+  },
+  "vor_wf": {
+   "r2_price": 0.282,
+   "r2_profile": 0.294
+  },
+  "vor_holdout": {
+   "r2_price": 0.381,
+   "r2_profile": 0.383
+  }
+ },
+ "history": [
+  {
+   "exp_id": "baseline",
+   "decision": "reference",
+   "when": "2026-10-02T19:59:19.381278"
+  },
+  {
+   "exp_id": "e01_val",
+   "decision": "accept",
+   "when": "2026-10-02T19:59:37.443741",
+   "description": "add VAL relative-value/interaction features (ppg_per_dollar, price_x_age, ecr_vs_prior_rank, price_per_ecr)",
+   "reasons": []
+  },
+  {
+   "exp_id": "e02_eff",
+   "decision": "reject",
+   "when": "2026-10-02T19:59:50.607480",
+   "description": "add EFF prior-season efficiency-rate features (pts/opp, pts/snap, catch rate, aDOT, RZ share, QB pass/rush rates)",
+   "reasons": [
+    "top5/wf Brier regress +0.0010",
+    "top5/holdout AUC regress -0.0157"
+   ]
+  },
+  {
+   "exp_id": "e02b_eff_starter",
+   "decision": "accept",
+   "when": "2026-10-02T20:00:18.489334",
+   "description": "EFF efficiency features applied to the STARTER head only (post-hoc scoped variant of rejected e02: EFF helped starter +0.004 AUC / hurt top-5 -0.016 as a global add; gated identically)",
+   "reasons": []
+  },
+  {
+   "exp_id": "e03_dropoff",
+   "decision": "reject",
+   "when": "2026-10-02T20:00:30.839828",
+   "description": "drop prior-year offense features (prior_off_rank, prio_*) - effect measured ~0 post-2023 in v2 report s.11",
+   "reasons": [
+    "no target cleared the holdout improvement bar (AUC +0.003 or Brier -0.0015)"
+   ]
+  },
+  {
+   "exp_id": "e04_dropmissed",
+   "decision": "reject",
+   "when": "2026-10-02T20:00:48.444126",
+   "description": "drop missed_prior/missed5 (injury effect flipped sign in 2024-25 test actuals; model still applies stale discount)",
+   "reasons": [
+    "no target cleared the holdout improvement bar (AUC +0.003 or Brier -0.0015)"
+   ]
+  },
+  {
+   "exp_id": "e03_dropoff",
+   "decision": "accept",
+   "when": "2026-10-02T20:01:30.090280",
+   "description": "drop prior-year offense features (prior_off_rank, prio_*) - effect measured ~0 post-2023 in v2 report s.11",
+   "reasons": []
+  },
+  {
+   "exp_id": "e04_dropmissed",
+   "decision": "reject",
+   "when": "2026-10-02T20:01:39.106000",
+   "description": "drop missed_prior/missed5 (injury effect flipped sign in 2024-25 test actuals; model still applies stale discount)",
+   "reasons": [
+    "top5/wf AUC regress -0.0110",
+    "top5/wf Brier regress +0.0009"
+   ]
+  },
+  {
+   "exp_id": "e05_ensemble",
+   "decision": "accept",
+   "when": "2026-10-02T20:02:04.723120",
+   "description": "fixed 50/50 probability average of XGBoost with the LR-extended head (LR-ext beat XGB on holdout top-5)",
+   "reasons": []
+  },
+  {
+   "exp_id": "e06_cluster",
+   "decision": "reject",
+   "when": "2026-10-02T20:02:25.777502",
+   "description": "cluster-normalized sample weights: recency decay / times player-season appears across leagues, renormalized",
+   "reasons": [
+    "starter/holdout AUC regress -0.0021",
+    "starter/holdout Brier regress +0.0006",
+    "no target cleared the holdout improvement bar (AUC +0.003 or Brier -0.0015)"
+   ]
+  },
+  {
+   "exp_id": "e07_team",
+   "decision": "reject",
+   "when": "2026-10-02T20:02:43.048324",
+   "description": "add TEAM prior-year team pass-volume context (pass att/game, pass share, pass rank, plays/game)",
+   "reasons": [
+    "no target cleared the holdout improvement bar (AUC +0.003 or Brier -0.0015)"
+   ]
+  },
+  {
+   "exp_id": "e08_traj",
+   "decision": "reject",
+   "when": "2026-10-02T20:03:00.033912",
+   "description": "add TRAJ two-year trajectory (prior2 PPG/rank, ppg_delta, rank_improve)",
+   "reasons": [
+    "top5/wf AUC regress -0.0047",
+    "top5/wf Brier regress +0.0018",
+    "starter/holdout AUC regress -0.0022",
+    "starter/holdout Brier regress +0.0008",
+    "no target cleared the holdout improvement bar (AUC +0.003 or Brier -0.0015)"
+   ]
+  },
+  {
+   "exp_id": "e09_wk",
+   "decision": "reject",
+   "when": "2026-10-02T20:03:16.029630",
+   "description": "add WK prior-season weekly consistency (points CV, floor-week share, 90th-pct week)",
+   "reasons": [
+    "top5/wf AUC regress -0.0032",
+    "no target cleared the holdout improvement bar (AUC +0.003 or Brier -0.0015)"
+   ]
+  },
+  {
+   "exp_id": "e11_posblend",
+   "decision": "reject",
+   "when": "2026-10-02T20:03:32.734004",
+   "description": "per-position blend for weak cells: 0.6 pooled + 0.4 per-position model for WR top-5 and TE starter (fixed weights)",
+   "reasons": [
+    "top5/holdout Brier regress +0.0009",
+    "starter/wf AUC regress -0.0033",
+    "starter/wf Brier regress +0.0017",
+    "starter/holdout Brier regress +0.0006",
+    "no target cleared the holdout improvement bar (AUC +0.003 or Brier -0.0015)"
+   ]
+  },
+  {
+   "exp_id": "e12_cal",
+   "decision": "reject",
+   "when": "2026-10-02T20:03:53.293982",
+   "description": "train-fold-only shrink calibration: s in {1,.95,...,.7} toward train base rate chosen by 5-fold OOF Brier inside each training fold; transport to both test folds",
+   "reasons": [
+    "no target met the calibration improvement bar"
+   ]
+  }
+ ]
+}
