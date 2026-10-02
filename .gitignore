@@ -1,0 +1,5 @@
+training_data*.csv
+test_predictions*.csv
+*.pkl
+__pycache__/
+*.log
