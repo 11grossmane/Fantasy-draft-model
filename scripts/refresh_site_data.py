@@ -8,6 +8,10 @@ season projections) and FantasyPros ECR are preseason-baked; this
 refresh updates injuries and in-season form, preserving stored
 preseason inputs where no live pull exists in CI.
 
+The site loads large files as sequential <100KB text parts
+(players.00.json ... plus players.parts.json), so this script writes
+those parts instead of a single players.json.
+
 Run from repo root:  python scripts/refresh_site_data.py
 Exits non-zero on network failure so the workflow fails loudly
 instead of committing stale or partial data.
@@ -17,6 +21,7 @@ import json, os, sys, time, urllib.request
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(ROOT, "site", "assets", "data")
 API = "https://api.sleeper.app/v1"
+PART_SIZE = 98000  # keep each part comfortably under the commit pipeline limit
 
 
 def get(url):
@@ -25,8 +30,24 @@ def get(url):
         return json.load(r)
 
 
+def write_parts(path_prefix, manifest_path, text):
+    parts = [text[i:i + PART_SIZE] for i in range(0, len(text), PART_SIZE)]
+    # drop stale extras from a previously longer file
+    i = 0
+    for chunk in parts:
+        p = f"{path_prefix}.{i:02d}.json"
+        with open(p, "w") as f:
+            f.write(chunk)
+        i += 1
+    while os.path.exists(f"{path_prefix}.{i:02d}.json"):
+        os.remove(f"{path_prefix}.{i:02d}.json")
+        i += 1
+    with open(manifest_path, "w") as f:
+        json.dump({"parts": len(parts)}, f)
+
+
 def main():
-    players_path = os.path.join(DATA, "players.json")
+    players_path = None  # players now ship as chunked parts (see write_parts)
     meta_path = os.path.join(DATA, "meta.json")
     with open(players_path) as f:
         players = json.load(f)
@@ -65,8 +86,8 @@ def main():
     meta["currentThroughWeek"] = week
     meta["stateWeek"] = week
     meta["asOfMs"] = int(time.time() * 1000)
-    with open(players_path, "w") as f:
-        json.dump(players, f)
+    players_text = json.dumps(players)
+    write_parts(os.path.join(DATA, "players"), os.path.join(DATA, "players.parts.json"), players_text)
     with open(meta_path, "w") as f:
         json.dump(meta, f, indent=1)
     print(f"refreshed {len(players)} players through week {week}")
