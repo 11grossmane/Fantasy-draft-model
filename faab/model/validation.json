@@ -1,0 +1,18 @@
+{
+ "band50_coverage": 0.7052023121387283,
+ "band80_coverage": 0.8901734104046243,
+ "mae_q50": 4.218734463239561,
+ "mae_base_pos": 4.878612716763006,
+ "mae_base_pp": 4.809248554913295,
+ "pinball_q50_model": 2.1093672316197805,
+ "pinball_q50_basepp": 2.4046242774566475,
+ "pinball_q75_model": 1.9406405894883947,
+ "pinball_q75_basepp": 3.036127167630058,
+ "frac_actual_above_q75": 0.2832369942196532,
+ "frac_actual_above_q90": 0.10982658959537572,
+ "test_n": 173,
+ "rival_top3_hit_rate": 0.2897196261682243,
+ "rival_top3_chance": 0.3333333333333333,
+ "winner_bid_in_range_when_top3": 0.8064516129032258,
+ "rival_eval_n": 214
+}
