@@ -1049,6 +1049,27 @@
       return new Date(ms).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
     }
 
+    // Large data/model files ship as sequential <100 KB text parts (the
+    // GitHub commit pipeline rejects bigger chunks): <name>.00.json,
+    // <name>.01.json, … plus a tiny <name>.parts.json manifest holding the
+    // part count. Fetch the parts in order, concatenate the raw JSON text,
+    // and parse once — the bytes are identical to the unsplit file.
+    async function loadParted(url) {
+      const manifest = await fetch(url + ".parts.json").then((r) => {
+        if (!r.ok) throw new Error("HTTP " + r.status + " for " + url + ".parts.json");
+        return r.json();
+      });
+      let text = "";
+      for (let i = 0; i < manifest.parts; i++) {
+        const partUrl = url + "." + String(i).padStart(2, "0") + ".json";
+        text += await fetch(partUrl).then((r) => {
+          if (!r.ok) throw new Error("HTTP " + r.status + " for " + partUrl);
+          return r.text();
+        });
+      }
+      return JSON.parse(text);
+    }
+
     async function init() {
       try {
         // Wire the settings UI before any fetch: an edit must land in
@@ -1060,14 +1081,14 @@
         readSettings();
         const base = "assets/";
         const [players, meta, features, top5, starter, vor, vorNp, faabQ, faabTables] = await Promise.all([
-          fetch(base + "data/players.json").then((r) => r.json()),
+          loadParted(base + "data/players"),
           fetch(base + "data/meta.json").then((r) => r.json()),
           fetch(base + "models/features.json").then((r) => r.json()),
           fetch(base + "models/model_top5.json").then((r) => r.json()),
           fetch(base + "models/model_starter.json").then((r) => r.json()),
-          fetch(base + "models/model_vor.json").then((r) => r.json()),
-          fetch(base + "models/model_vor_noprice.json").then((r) => r.json()),
-          fetch(base + "models/faab_quantiles.json").then((r) => r.json()),
+          loadParted(base + "models/model_vor"),
+          loadParted(base + "models/model_vor_noprice"),
+          loadParted(base + "models/faab_quantiles"),
           fetch(base + "models/faab_rivals.json").then((r) => r.json()),
         ]);
         state.players = players;
