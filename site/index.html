@@ -1,0 +1,1114 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="data:," />
+    <title>Draft Day Model Web</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #f4f4ef;
+        --surface: #ffffff;
+        --surface-alt: #eceee6;
+        --border: #d8dbcd;
+        --text: #1a211b;
+        --dim: #5c665c;
+        --accent: #1d7a3f;
+        --accent-strong: #145c2e;
+        --on-accent: #ffffff;
+        --bad: #b3402e;
+        --amber: #9a6206;
+        --radius: 10px;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #10140f;
+          --surface: #1a201a;
+          --surface-alt: #232b22;
+          --border: #333d31;
+          --text: #e8ede4;
+          --dim: #9aa695;
+          --accent: #43b364;
+          --accent-strong: #6fce8a;
+          --on-accent: #0c140d;
+          --bad: #e0735f;
+          --amber: #e0a63f;
+        }
+      }
+      * { box-sizing: border-box; }
+      html { -webkit-text-size-adjust: 100%; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Barlow", system-ui, -apple-system, "Segoe UI", sans-serif;
+        font-size: 16px;
+        line-height: 1.45;
+      }
+      .num { font-family: "Barlow Condensed", "Barlow", sans-serif; font-variant-numeric: tabular-nums; letter-spacing: 0.01em; }
+      main { max-width: 44rem; margin: 0 auto; padding: 0.75rem 0.75rem 3rem; }
+      @media (min-width: 640px) { main { padding: 1rem 1rem 3rem; } }
+
+      .picker { position: relative; }
+      .search-input {
+        width: 100%; border: 1px solid var(--border); background: var(--surface);
+        color: var(--text); border-radius: 999px; padding: 0.8rem 1.1rem;
+        font: inherit; font-size: 1.05rem; outline: none;
+        box-shadow: 0 1px 3px rgba(20, 30, 20, 0.08);
+      }
+      .search-input:focus { border-color: var(--accent); }
+      .suggestions {
+        position: absolute; left: 0; right: 0; top: calc(100% + 0.3rem); z-index: 30;
+        background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+        box-shadow: 0 10px 30px rgba(10, 20, 10, 0.22); overflow: hidden;
+      }
+      .suggestions ul { list-style: none; margin: 0; padding: 0; }
+      .suggestion {
+        display: flex; width: 100%; align-items: center; justify-content: space-between; gap: 0.5rem;
+        padding: 0.6rem 0.8rem; background: none; border: none; color: var(--text);
+        font: inherit; text-align: left; cursor: pointer;
+      }
+      .suggestion:hover, .suggestion:focus-visible { background: var(--surface-alt); }
+      .suggestion .who { min-width: 0; }
+      .suggestion .who b { display: block; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .suggestion .who span { display: block; font-size: 0.8rem; color: var(--dim); }
+      .suggestion .odds { flex-shrink: 0; font-size: 0.95rem; }
+      .suggestions .none { padding: 0.6rem 0.8rem; font-size: 0.9rem; color: var(--dim); }
+
+      .vintage { margin-top: 0.45rem; font-size: 0.78rem; color: var(--dim); }
+
+      .tabs { display: flex; gap: 0.4rem; margin-top: 0.7rem; }
+      .tab {
+        flex: 1; padding: 0.55rem 0.5rem; border-radius: 999px; border: 1px solid var(--border);
+        background: var(--surface); color: var(--text); font: inherit; font-weight: 600; cursor: pointer;
+      }
+      .tab[aria-selected="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+
+      .card {
+        background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+        padding: 0.85rem 0.9rem; margin-top: 0.7rem;
+      }
+      .identity { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.6rem; }
+      .identity h2 { margin: 0; font-size: 1.35rem; font-weight: 700; line-height: 1.15; }
+      .identity .sub { font-size: 0.88rem; color: var(--dim); }
+      .chip {
+        flex-shrink: 0; border-radius: 999px; padding: 0.22rem 0.65rem;
+        font-size: 0.78rem; font-weight: 700; color: #fff; background: var(--dim);
+      }
+      .chip.value { background: var(--accent); color: var(--on-accent); }
+      .chip.overpay { background: var(--bad); }
+      .chip.plain { background: var(--surface-alt); color: var(--text); border: 1px solid var(--border); }
+
+      .bid-label { display: block; margin-top: 0.8rem; font-size: 0.78rem; font-weight: 600; color: var(--dim); }
+      .bid-input {
+        width: 100%; margin-top: 0.25rem; border: 1px solid var(--border); border-radius: 8px;
+        background: var(--surface); color: var(--text); padding: 0.55rem 0.7rem;
+        font-size: 1.25rem; outline: none;
+      }
+      .bid-input:focus { border-color: var(--accent); }
+
+      .heroes { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem; margin-top: 0.8rem; }
+      @media (min-width: 560px) { .heroes { grid-template-columns: repeat(4, 1fr); } }
+      .hero {
+        display: block; width: 100%; text-align: left; cursor: pointer;
+        background: var(--surface-alt); border: none; border-radius: 8px; padding: 0.55rem 0.65rem; color: var(--text); font: inherit;
+      }
+      .hero .k { display: block; font-size: 0.68rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .hero .v { display: block; font-size: 1.7rem; font-weight: 600; line-height: 1.1; }
+      .hero .s { display: block; font-size: 0.72rem; color: var(--dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .verdict-line { margin-top: 0.65rem; font-size: 0.95rem; }
+      .tap-hint { margin-top: 0.3rem; font-size: 0.75rem; color: var(--dim); }
+
+      .disclosure { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); margin-top: 0.7rem; }
+      .disclosure > button.head {
+        display: flex; width: 100%; align-items: center; justify-content: space-between; gap: 0.6rem;
+        padding: 0.65rem 0.9rem; background: none; border: none; color: var(--text);
+        font: inherit; font-weight: 600; font-size: 0.95rem; text-align: left; cursor: pointer;
+      }
+      .disclosure .aside { font-size: 0.75rem; font-weight: 400; color: var(--dim); }
+      .disclosure .body { border-top: 1px solid var(--border); padding: 0.7rem 0.9rem; }
+      .chev { color: var(--dim); font-weight: 400; }
+
+      .statgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.35rem 0.5rem; }
+      @media (min-width: 560px) { .statgrid { grid-template-columns: repeat(4, 1fr); } }
+      .stat { min-width: 0; }
+      .stat .k { display: block; font-size: 0.66rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; color: var(--dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .stat .v { display: block; font-size: 1.05rem; font-weight: 500; }
+      .note { font-size: 0.8rem; color: var(--dim); margin-top: 0.55rem; }
+
+      .clearing {
+        display: block; width: 100%; text-align: left; cursor: pointer; margin-top: 0.8rem;
+        background: var(--surface-alt); border: none; border-radius: 8px; padding: 0.65rem 0.8rem; color: var(--text); font: inherit;
+      }
+      .clearing .k { display: block; font-size: 0.68rem; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--dim); }
+      .clearing .v { display: block; font-size: 1.55rem; font-weight: 600; line-height: 1.15; }
+      .clearing .s { display: block; font-size: 0.75rem; color: var(--dim); }
+
+      .callout { margin-top: 0.8rem; background: var(--surface-alt); border: 1px solid var(--accent); border-radius: 8px; padding: 0.65rem 0.8rem; }
+      .callout.bad { border-color: var(--bad); }
+      .callout .t { font-size: 0.92rem; font-weight: 600; }
+      .callout p { margin: 0.3rem 0 0; font-size: 0.92rem; }
+      .callout .small { font-size: 0.78rem; color: var(--dim); }
+
+      .rivals { list-style: none; margin: 0.5rem 0 0; padding: 0; }
+      .rivals li { display: flex; align-items: baseline; justify-content: space-between; gap: 0.6rem; padding: 0.5rem 0; border-top: 1px solid var(--border); font-size: 0.95rem; }
+      .rivals li:first-child { border-top: none; }
+      .rivals .mgr { min-width: 0; }
+      .rivals .mgr b { display: block; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .rivals .mgr span { display: block; font-size: 0.75rem; color: var(--dim); }
+      .rivals .amt { flex-shrink: 0; text-align: right; }
+      .rivals .amt span { display: block; font-size: 0.75rem; color: var(--dim); }
+      .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; }
+      .panel-head h3 { margin: 0; font-size: 0.95rem; font-weight: 600; }
+      .linkbtn { background: none; border: none; padding: 0; color: var(--accent-strong); font: inherit; font-size: 0.8rem; font-weight: 600; cursor: pointer; }
+
+      .settings-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; }
+      @media (min-width: 560px) { .settings-grid { grid-template-columns: repeat(5, 1fr); } }
+      .settings-grid label { display: block; font-size: 0.72rem; font-weight: 600; color: var(--dim); }
+      .settings-grid input, .settings-grid select {
+        width: 100%; margin-top: 0.2rem; border: 1px solid var(--border); border-radius: 6px;
+        background: var(--surface); color: var(--text); padding: 0.4rem 0.45rem; font: inherit; font-size: 0.95rem; outline: none;
+      }
+      .settings-grid input:focus, .settings-grid select:focus { border-color: var(--accent); }
+
+      .empty { padding: 2.4rem 1rem; text-align: center; }
+      .empty p { margin: 0.2rem 0; }
+      .empty .dim { color: var(--dim); font-size: 0.9rem; }
+      .err { color: var(--bad); }
+
+      footer { margin-top: 2rem; border-top: 1px solid var(--border); padding-top: 0.8rem; font-size: 0.78rem; color: var(--dim); }
+      footer p { margin: 0.3rem 0; }
+
+      .modal-back {
+        position: fixed; inset: 0; z-index: 50; background: rgba(8, 12, 8, 0.55);
+        display: flex; align-items: flex-end; justify-content: center; padding: 0.75rem;
+      }
+      @media (min-width: 640px) { .modal-back { align-items: center; } }
+      .modal {
+        width: 100%; max-width: 28rem; background: var(--surface); border: 1px solid var(--border);
+        border-radius: var(--radius); padding: 1rem; max-height: 85vh; overflow-y: auto;
+      }
+      .modal-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 0.8rem; }
+      .modal-head h2 { margin: 0; font-size: 1.15rem; }
+      .modal p { font-size: 0.92rem; white-space: pre-line; }
+      .close-btn { border: 1px solid var(--border); background: var(--surface); color: var(--text); border-radius: 6px; padding: 0.3rem 0.6rem; font: inherit; font-size: 0.85rem; cursor: pointer; }
+      [hidden] { display: none !important; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section aria-label="Player picker" class="picker">
+        <label>
+          <span hidden>Search for a player</span>
+          <input id="search" class="search-input" type="search" autocomplete="off"
+                 placeholder="Search any player…" aria-label="Search for a player" />
+        </label>
+        <div id="suggestions" class="suggestions" hidden></div>
+        <p id="vintage" class="vintage">Loading player pool…</p>
+      </section>
+
+      <div class="tabs" role="tablist" aria-label="Views">
+        <button type="button" class="tab" role="tab" id="tab-player" aria-selected="true">Player</button>
+        <button type="button" class="tab" role="tab" id="tab-faab" aria-selected="false">FAAB Predictor</button>
+      </div>
+
+      <section class="disclosure" aria-label="League settings">
+        <button type="button" class="head" id="settings-head" aria-expanded="false">
+          <span>League settings</span>
+          <span><span class="aside" id="settings-aside">10 teams · $200 · superflex</span> <span class="chev" id="settings-chev">▸</span></span>
+        </button>
+        <div class="body" id="settings-body" hidden>
+          <div class="settings-grid">
+            <label>Teams
+              <input id="set-teams" type="number" inputmode="numeric" min="2" max="32" step="1" value="10" aria-label="Number of teams" />
+            </label>
+            <label>Budget ($)
+              <input id="set-budget" type="number" inputmode="numeric" min="1" max="10000" step="1" value="200" aria-label="Auction budget in dollars" />
+            </label>
+            <label>Superflex
+              <select id="set-superflex" aria-label="Superflex on or off">
+                <option value="1" selected>On</option>
+                <option value="0">Off</option>
+              </select>
+            </label>
+            <label>QB slots
+              <input id="set-qb" type="number" inputmode="numeric" min="0" max="10" step="1" value="1" aria-label="QB slots" />
+            </label>
+            <label>RB slots
+              <input id="set-rb" type="number" inputmode="numeric" min="0" max="10" step="1" value="2" aria-label="RB slots" />
+            </label>
+            <label>WR slots
+              <input id="set-wr" type="number" inputmode="numeric" min="0" max="10" step="1" value="2" aria-label="WR slots" />
+            </label>
+            <label>TE slots
+              <input id="set-te" type="number" inputmode="numeric" min="0" max="10" step="1" value="1" aria-label="TE slots" />
+            </label>
+            <label>FLEX
+              <input id="set-flex" type="number" inputmode="numeric" min="0" max="10" step="1" value="1" aria-label="FLEX slots" />
+            </label>
+            <label>SFLEX
+              <input id="set-sflex" type="number" inputmode="numeric" min="0" max="10" step="1" value="1" aria-label="Superflex slots" />
+            </label>
+            <label>Bench
+              <input id="set-bench" type="number" inputmode="numeric" min="0" max="20" step="1" value="6" aria-label="Bench slots" />
+            </label>
+          </div>
+          <p class="note">Auction values reprice instantly from these settings — replacement level comes from your roster slots, and the spendable budget is split over projected points above replacement. No kickers, matching Fantasy 101 XXI.</p>
+        </div>
+      </section>
+
+      <section id="view-player" aria-label="Player lookup"></section>
+      <section id="view-faab" aria-label="FAAB Predictor" hidden></section>
+
+      <footer id="footer"></footer>
+    </main>
+
+    <div id="modal-back" class="modal-back" hidden>
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <div class="modal-head">
+          <h2 id="modal-title"></h2>
+          <button type="button" class="close-btn" id="modal-close">Close</button>
+        </div>
+        <p id="modal-body"></p>
+      </div>
+    </div>
+
+    <script>
+    "use strict";
+    /* ═══ Inference engine ═══
+       Browser port of the persisted Draft Day Model (production_v4 XGBoost
+       ensemble + LR-extended logistic heads) and the FAAB quantile models.
+       Tree-walk semantics match XGBoost/sklearn exactly; outputs verified
+       against predict.py and faab_predict.py reference examples. */
+    const POSITIONS = ["QB", "RB", "WR", "TE"];
+    function isNum(v) { return typeof v === "number" && Number.isFinite(v); }
+    function n(v) { return isNum(v) ? v : null; }
+    function round(v, p) { const f = 10 ** p; return Math.round(v * f) / f; }
+    function sigmoid(z) {
+      if (z >= 0) { const e = Math.exp(-z); return 1 / (1 + e); }
+      const e = Math.exp(z); return e / (1 + e);
+    }
+    function parseBaseScore(raw) {
+      if (typeof raw === "number" && Number.isFinite(raw)) return raw;
+      if (Array.isArray(raw)) {
+        const f = raw[0];
+        if (typeof f === "number" && Number.isFinite(f)) return f;
+        if (typeof f === "string") { const p = parseFloat(f); if (Number.isFinite(p)) return p; }
+      }
+      if (typeof raw === "string") {
+        const m = raw.match(/-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?/);
+        if (m) { const p = parseFloat(m[0]); if (Number.isFinite(p)) return p; }
+      }
+      return 0;
+    }
+    function evalTree(tree, vector) {
+      let node = 0;
+      for (let step = 0; step < 64; step++) {
+        const left = tree.left_children[node];
+        const right = tree.right_children[node];
+        const cond = tree.split_conditions[node];
+        if (left === undefined || right === undefined || cond === undefined) return 0;
+        if (left === -1 && right === -1) return cond;
+        const fi = tree.split_indices[node];
+        const value = fi === undefined ? null : vector[fi];
+        const goLeft = (value === null || value === undefined || Number.isNaN(value))
+          ? tree.default_left[node] === 1
+          : value < cond;
+        node = goLeft ? left : right;
+        if (node < 0) return cond;
+      }
+      const fb = tree.split_conditions[node];
+      return fb === undefined ? 0 : fb;
+    }
+    function predictBooster(booster, vector) {
+      const base = parseBaseScore(booster.learner.learner_model_param && booster.learner.learner_model_param.base_score);
+      const objective = (booster.learner.objective && booster.learner.objective.name) || "";
+      let margin = objective.startsWith("binary")
+        ? Math.log(Math.min(Math.max(base, 1e-6), 1 - 1e-6) / (1 - Math.min(Math.max(base, 1e-6), 1 - 1e-6)))
+        : base;
+      const trees = booster.learner.gradient_booster.model.trees;
+      for (let i = 0; i < trees.length; i++) margin += evalTree(trees[i], vector);
+      return objective.startsWith("binary") ? sigmoid(margin) : margin;
+    }
+    function buildRow(input) {
+      const budget = isNum(input.budget) && input.budget > 0 ? input.budget : 200;
+      const priceNorm = (input.price * 200) / budget;
+      const age = n(input.age);
+      const missedRaw = n(input.priorGamesMissed);
+      const missed = missedRaw === null ? null : Math.min(Math.max(missedRaw, 0), 17);
+      const hasPrior = missed === null ? 0 : 1;
+      const missed5 = missed !== null && missed >= 5 ? 1 : 0;
+      const ppg = n(input.priorPpg);
+      const snap = n(input.snapShare);
+      const oppPg = n(input.oppPg);
+      const ecrPos = n(input.ecrPos);
+      const priorRank = n(input.priorRank);
+      const ptsPerOppIn = n(input.ptsPerOpp);
+      const ptsPerOpp = ptsPerOppIn !== null ? ptsPerOppIn
+        : (ppg !== null && oppPg !== null && oppPg !== 0 ? ppg / oppPg : null);
+      const row = {
+        price_norm: priceNorm, age: age, missed_prior: missed, missed5: missed5, has_prior: hasPrior,
+        ecr_overall: n(input.ecrOverall), ecr_pos: ecrPos, ecr_sd: n(input.ecrSd),
+        ecr_overall_log: isNum(input.ecrOverall) ? Math.log1p(input.ecrOverall) : null,
+        ecr_pos_log: ecrPos !== null ? Math.log1p(ecrPos) : null,
+        prior_pts_ppr: n(input.priorPts), prior_ppg_ppr: ppg, prior_rank_ppr: priorRank,
+        prior_snap_share: snap, prior_target_share: n(input.targetShare),
+        prior_rush_share: n(input.rushShare), prior_opp_pg: oppPg,
+        years_exp: n(input.yearsExp), draft_round: n(input.draftRound), draft_pick: n(input.draftPick),
+        age_sq: age !== null ? age * age : null,
+        exp_youth: priceNorm >= 25 && age !== null && age <= 24 ? 1 : 0,
+        ppg_x_snap: ppg !== null && snap !== null ? ppg * snap : null,
+        ppg_per_dollar: ppg !== null ? ppg / Math.max(priceNorm, 1) : null,
+        price_x_age: age !== null ? (priceNorm * age) / 100 : null,
+        ecr_vs_prior_rank: ecrPos !== null && priorRank !== null ? ecrPos - priorRank : null,
+        price_per_ecr: ecrPos !== null ? priceNorm / Math.max(ecrPos, 1) : null,
+        prior_pts_per_opp: ptsPerOpp, prior_pts_per_snap: n(input.ptsPerSnap),
+        prior_catch_rate: n(input.catchRate), prior_adot: n(input.adot), prior_rz_share: n(input.rzShare),
+        prior_pass_att_pg: n(input.passAttPg), prior_pass_rtg: n(input.passRtg),
+        prior_pass_td_rate: n(input.passTdRate), prior_qb_rush_pg: n(input.qbRushPg),
+      };
+      for (const p of POSITIONS) row["pos_" + p] = p === input.pos ? 1 : 0;
+      return row;
+    }
+    function makeScorer(FEATURES, BOOSTERS) {
+      const ENS_W = (FEATURES.selection && FEATURES.selection.ensemble && FEATURES.selection.ensemble.xgb_weight) || 0.5;
+      function lrPredict(target, row) {
+        const spec = FEATURES.lr_extended[target];
+        let z = spec.intercept;
+        for (let i = 0; i < spec.features.length; i++) {
+          const f = spec.features[i], c = spec.coef[i];
+          if (f === undefined || c === undefined) continue;
+          const v = row[f];
+          const used = (v === null || v === undefined) ? spec.medians[f] : v;
+          z += c * (used !== null && used !== undefined ? used : 0);
+        }
+        return sigmoid(z);
+      }
+      function vectorFor(names, row) { return names.map(function (nm) { const v = row[nm]; return v === undefined ? null : v; }); }
+      function score(input) {
+        const row = buildRow(input);
+        const top5Vec = vectorFor(FEATURES.features_by_target.top5, row);
+        const starterVec = vectorFor(FEATURES.features_by_target.starter, row);
+        const nopriceVec = vectorFor(FEATURES.features_noprice, row);
+        const xTop5 = predictBooster(BOOSTERS.top5, top5Vec);
+        const xStarter = predictBooster(BOOSTERS.starter, starterVec);
+        const vorAtPrice = predictBooster(BOOSTERS.vor, top5Vec);
+        const vorProfile = predictBooster(BOOSTERS.vorNoprice, nopriceVec);
+        const lrTop5 = lrPredict("top5", row);
+        const lrStarter = lrPredict("starter", row);
+        const pTop5 = ENS_W * xTop5 + (1 - ENS_W) * lrTop5;
+        const pStarter = ENS_W * xStarter + (1 - ENS_W) * lrStarter;
+        const kByPos = FEATURES.fair_price_k_by_position || {};
+        const k = kByPos[input.pos] !== undefined ? kByPos[input.pos] : FEATURES.fair_price_k_dollars_per_vor;
+        const fairPrice = Math.max(1, 1 + k * Math.max(vorProfile, 0));
+        const supplied = [input.ecrPos, input.priorPpg, input.priorRank, input.snapShare, input.oppPg].filter(isNum).length;
+        const completeness = supplied / 5;
+        const budget = isNum(input.budget) && input.budget > 0 ? input.budget : 200;
+        return {
+          pos: input.pos, priceNorm200: round((input.price * 200) / budget, 1),
+          profileCompleteness: round(completeness, 2), sparseProfile: completeness < 0.6,
+          pTop5: round(pTop5, 3), pStarter: round(pStarter, 3),
+          pTop5Xgb: round(xTop5, 3), pStarterXgb: round(xStarter, 3),
+          pTop5LrExt: round(lrTop5, 3), pStarterLrExt: round(lrStarter, 3),
+          vorExpectedAtPrice: round(vorAtPrice, 1), vorProfile: round(vorProfile, 1),
+          fairPrice200: Math.round(fairPrice),
+        };
+      }
+      return { score: score };
+    }
+
+    /* ═══ FAAB quantile inference ═══ */
+    const FAAB_POSITIONS = ["QB", "RB", "WR", "TE", "DEF"];
+    function binValue(raw, thresholds, missingIdx) {
+      if (raw === null || raw === undefined || Number.isNaN(raw)) return missingIdx;
+      let lo = 0, hi = thresholds.length;
+      while (lo < hi) {
+        const mid = (lo + hi) >> 1;
+        if (thresholds[mid] < raw) lo = mid + 1; else hi = mid;
+      }
+      return lo;
+    }
+    function predictQuantile(model, vector) {
+      const binned = vector.map(function (raw, idx) {
+        return binValue(raw, model.bin_thresholds[idx] || [], model.missing_bin_idx);
+      });
+      let total = model.baseline;
+      for (const tree of model.trees) {
+        let nodeIdx = 0;
+        for (let step = 0; step < 64; step++) {
+          const node = tree[nodeIdx];
+          if (!node) break;
+          if (node[0] === 1) { total += node[1] || 0; break; }
+          const bv = binned[node[2] || 0];
+          const bvv = bv === undefined ? model.missing_bin_idx : bv;
+          const goLeft = bvv === model.missing_bin_idx ? node[4] === 1 : bvv <= node[3];
+          nodeIdx = goLeft ? node[5] : node[6];
+        }
+      }
+      return total;
+    }
+    function makeFaab(FAAB_MODELS) {
+      const FEATS = FAAB_MODELS.feats;
+      function predict(input) {
+        let pos = String(input.position || "").toUpperCase();
+        if (pos === "DST") pos = "DEF";
+        const week = input.week;
+        const phase = week <= 5 ? "early" : week <= 10 ? "mid" : "late";
+        const row = {
+          week: week, prev_week_pts: n(input.prevWeekPts), ppg_before: n(input.ppgBefore),
+          games_before: n(input.gamesBefore), prev_pts_pct: n(input.prevPtsPct),
+          faab_max: n(input.faabMax), faab_med: n(input.faabMed),
+          phase_mid: phase === "mid" ? 1 : 0, phase_late: phase === "late" ? 1 : 0,
+        };
+        for (const p of FAAB_POSITIONS) row["pos_" + p] = pos === p ? 1 : 0;
+        const vector = FEATS.map(function (nm) { const v = row[nm]; return v === undefined ? null : v; });
+        const raw = {};
+        for (const q of ["q10", "q25", "q50", "q75", "q90"]) {
+          raw[q] = Math.max(0, predictQuantile(FAAB_MODELS.quantiles[q], vector));
+        }
+        return {
+          position: pos, week: week,
+          clearingQuantiles: { q10: Math.round(raw.q10), q25: Math.round(raw.q25), q50: Math.round(raw.q50), q75: Math.round(raw.q75), q90: Math.round(raw.q90) },
+          neededBid: { p50: Math.ceil(raw.q50) + 1, p75: Math.ceil(raw.q75) + 1, p90: Math.ceil(raw.q90) + 1 },
+        };
+      }
+      return { predict: predict };
+    }
+
+    /* ═══ Projection-based auction pricing (value-based drafting) ═══ */
+    const PRICED = ["QB", "RB", "WR", "TE"];
+    function round1(v) { return Math.round(v * 10) / 10; }
+    function computeAuctionValues(pool, s) {
+      const byPos = new Map(), byId = new Map();
+      for (const e of pool) {
+        if (!PRICED.includes(e.pos)) continue;
+        if (!Number.isFinite(e.projPts)) continue;
+        byId.set(e.id, e);
+        if (!byPos.has(e.pos)) byPos.set(e.pos, []);
+        byPos.get(e.pos).push(e);
+      }
+      const desc = (a, b) => b.projPts - a.projPts || (a.id < b.id ? -1 : 1);
+      for (const l of byPos.values()) l.sort(desc);
+      const rank = new Map();
+      for (const l of byPos.values()) l.forEach((e, i) => rank.set(e.id, i + 1));
+      const drafted = new Set(), bench = new Set();
+      const take = (positions, count, isBench) => {
+        if (count <= 0) return;
+        const cand = [];
+        for (const pos of positions) for (const e of byPos.get(pos) || []) if (!drafted.has(e.id)) cand.push(e);
+        cand.sort(desc);
+        for (const e of cand.slice(0, count)) { drafted.add(e.id); if (isBench) bench.add(e.id); }
+      };
+      const T = s.teams;
+      take(["QB"], T * s.slots.qb); take(["RB"], T * s.slots.rb);
+      take(["WR"], T * s.slots.wr); take(["TE"], T * s.slots.te);
+      take(["RB", "WR", "TE"], T * s.slots.flex);
+      take(s.superflex ? ["QB", "RB", "WR", "TE"] : ["RB", "WR", "TE"], T * s.slots.sflex);
+      take(["QB", "RB", "WR", "TE"], T * s.slots.bench, true);
+      const replacement = {};
+      const replacementPpg = {};
+      for (const pos of PRICED) {
+        const f = (byPos.get(pos) || []).find((e) => !drafted.has(e.id));
+        replacement[pos] = f ? round1(f.projPts) : null;
+        replacementPpg[pos] = f ? round1(isNum(f.projPpg) ? f.projPpg : f.projPts / 17) : null;
+      }
+      let sumPos = 0; const vorById = new Map();
+      for (const id of drafted) {
+        const e = byId.get(id);
+        const vor = e.projPts - (replacement[e.pos] !== null && replacement[e.pos] !== undefined ? replacement[e.pos] : 0);
+        vorById.set(id, vor);
+        if (vor > 0 && !bench.has(id)) sumPos += vor;
+      }
+      const dpv = sumPos > 0 ? (T * s.budget - drafted.size) / sumPos : null;
+      const values = new Map();
+      for (const e of byId.values()) {
+        if (!drafted.has(e.id)) {
+          values.set(e.id, { projPts: round1(e.projPts), vor: round1(e.projPts - (replacement[e.pos] || 0)), value: 0, posProjRank: rank.get(e.id) || 0 });
+          continue;
+        }
+        const vor = vorById.get(e.id) || 0;
+        const value = (dpv === null || bench.has(e.id)) ? 1 : Math.max(1, Math.round(1 + Math.max(vor, 0) * dpv));
+        values.set(e.id, { projPts: round1(e.projPts), vor: round1(vor), value: value, posProjRank: rank.get(e.id) || 0 });
+      }
+      return { values: values, replacement: replacement, replacementPpg: replacementPpg, dollarsPerVor: dpv === null ? null : Math.round(dpv * 1000) / 1000, draftedCount: drafted.size };
+    }
+
+    /* ═══ App ═══ */
+    const EXPLAINERS = {
+      pTop5: { title: "P(top-5)", body: "The model's estimated chance the player finishes inside the top 5 at his position for the season. Read it as a ranking first and rough odds second — holdout calibration error was about ±0.02–0.05.\n\nFor RBs this head is strong (holdout AUC 0.957); for QBs the confidence interval is very wide (0.57–0.89), so treat QB top-5 odds as a ranking, not a probability." },
+      pStarter: { title: "P(starter)", body: "The estimated chance the player finishes at or above replacement level at his position (season VOR ≥ 0) — i.e. he was actually worth starting. The model's most reliable head, especially for RB/WR floors (holdout AUC 0.808 overall)." },
+      vor: { title: "Model VOR (predicted)", body: "The draft model's own prediction of fantasy points above the replacement-level player at the position, learned from 41,659 real auction picks (2020–2025). 'Profile' VOR ignores price and values attributes and production alone; 'at price' (in Model detail) conditions on the bid you entered.\n\nThis is a different lens from the projection-based VOR used for pricing (+218 for Josh Allen): that one subtracts your league's replacement level from this season's Sleeper/Rotowire projection. The model number is what similar profiles historically produced; the pricing number is what this year's projection implies." },
+      fairPrice: { title: "Model fair price (anchor)", body: "What the profile-only VOR head implies on a $200 budget, using the position's fitted dollars-per-VOR rate. In the model's own validation report this is a coarse sanity band, not a valuation — it is shown as a labeled reference only. The Auction value is the price to bid against." },
+      auctionValue: { title: "Auction value", body: "The price this player should cost in your auction, built from real projected points (Sleeper/Rotowire season projections, PPR) and your league settings. Replacement level is set from your roster slots, then the spendable budget is split in proportion to projected points above replacement.\n\nSanity-checked against real draft data: under the default settings this prices Josh Allen at $48 (he cost $51 in a real 2025 draft), Bijan Robinson $41, Ja'Marr Chase $38." },
+      projPts: { title: "Projected points", body: "Real season projections for the target draft season (Sleeper/Rotowire, PPR), baked into this page at build time. These projected points — not the model's profile regression — are what auction values are priced from." },
+      currentForm: { title: "In-season form", body: "Current-season production to date. Shown for context only. The draft model is a preseason model trained on preseason snapshots (age, auction price, prior completed seasons, preseason expert ranks), so these in-season numbers are never fed into its predictions. They roll into the model next draft season, when this season becomes the 'prior season'." },
+      completeness: { title: "Profile completeness", body: "How many of the five headline inputs (ECR rank, prior PPG, prior finish, snap share, opportunities/game) are present for this player. Below 60% the profile is 'sparse' and outputs lean mostly on price — lean on the ranking, not the exact number." },
+      faabClearing: { title: "Clearing price", body: "The model's predicted distribution of the price to beat (the highest rival bid) in Fantasy 101's Wednesday FAAB auction. Trained on 2,404 bids across 1,453 Wednesday auctions, 2020–2026, losers included.\n\nCold-tested on 2025–26 (n=173): the 50% band covered 71% of actual winning bids, the 80% band 89%; actuals beat the 75th percentile 28% of the time (ideal 25%) and the 90th 11% (ideal 10%). The upper tail — what you bid against — is the calibrated part." },
+      faabSituation: { title: "Role change — what the model can't see", body: "The price model only sees this player's own production so far — it has no injury or depth-chart input, so a backup stepping into a vacated starting role prices off his backup numbers. When the player(s) ahead of him on his own team are out, we flag it here and show what the vacated role actually produced (the injured starter's points, snap share, and opportunities per game). The price itself doesn't move — it's the cold-validated number from his own stats — but situations like this are exactly where real bids blow past the top of the range. Feeding the model the starter's production instead was tested and rejected: proven producers are almost never on waivers in the training data, so the model prices that profile down, not up." },
+      faabDemand: { title: "The demand gate", body: "The waiver price model was trained only on players who actually drew bids in Fantasy 101 (2,404 claims, 2020–2026). 'Nobody wants him — he clears for $0' never appears in that data, so the model puts a contested-claim price on every warm body; and a star who would never be dropped sits so far outside the training profiles that he gets priced like a hot pickup, sometimes below his own backup. Before the model's number is shown, a gate checks the player against projection-based value over replacement — the same pricing as the Player tab on the default $200 settings. Below replacement with no startable form → $0–$1, whatever the model said. Star-tier projection ($20+ of a $200 draft budget) → the model declines to price him rather than invent a number. The gate stands down when he's next man up behind an injured starter — that role change is real demand (it's how a backup goes for $41), and the role-change flag covers it — and when he's out himself, where the stash question is a legitimate one." },
+      faabNeeded: { title: "Bid needed", body: "Clearing-price quantile plus $1 to win ties. The ~50% bid clears the predicted median rival bid about half the time; ~75% and ~90% trade more FAAB for more certainty. Probabilities come from the cold 2025–26 validation, not in-sample fit." },
+      faabRivals: { title: "Habitual bidders — not a prediction", body: "These are the managers who habitually pay up for this position in Fantasy 101, with their typical bid ranges.\n\nValidated honestly: naming the actual winner hit ~29–36% top-3 vs 33% by chance — barely better than guessing, because who bids is driven by that week's roster need. When the winner was in the top 3, their bid landed in the shown range 81% of the time. Use the ranges, not the names, as the signal." },
+    };
+
+    const $ = (id) => document.getElementById(id);
+    const state = {
+      players: [], byId: new Map(), meta: null, features: null,
+      scorer: null, faabModel: null, faabTables: null,
+      settings: { teams: 10, superflex: true, budget: 200, slots: { qb: 1, rb: 2, wr: 2, te: 1, flex: 1, sflex: 1, bench: 6 } },
+      pricing: null, selectedId: null, view: "player", bid: 20,
+    };
+
+    function fmtNum(v, d) { if (v === null || v === undefined || Number.isNaN(v)) return "—"; return v.toFixed(d === undefined ? 1 : d); }
+    function fmtPct(v) { if (v === null || v === undefined || Number.isNaN(v)) return "—"; return Math.round(v * 100) + "%"; }
+    function fmtShare(v) { if (v === null || v === undefined || Number.isNaN(v)) return "—"; return Math.round(v * 100) + "%"; }
+    function fmtInt(v) { if (v === null || v === undefined || Number.isNaN(v)) return "—"; return String(Math.round(v)); }
+    function fmtMoney(v) { if (v === null || v === undefined || Number.isNaN(v)) return "—"; return "$" + Math.round(v); }
+    function esc(s) { return String(s === null || s === undefined ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c])); }
+
+    function scoreInputs(player, price) {
+      const pre = player.pre;
+      return {
+        pos: player.pos, age: player.age, price: price, budget: state.settings.budget,
+        priorGamesMissed: pre.priorMissed, ecrOverall: pre.ecrOverall, ecrPos: pre.ecrPos, ecrSd: pre.ecrSd,
+        priorPpg: pre.priorPpg, priorPts: pre.priorPts, priorRank: pre.priorRank,
+        snapShare: pre.snapShare, targetShare: pre.targetShare, rushShare: pre.rushShare, oppPg: pre.oppPg,
+        yearsExp: player.yearsExp, draftRound: player.draftRound, draftPick: player.draftPick,
+        ptsPerOpp: pre.ptsPerOpp, ptsPerSnap: pre.ptsPerSnap, catchRate: pre.catchRate, adot: pre.adot,
+        rzShare: pre.rzShare, passAttPg: pre.passAttPg, passRtg: pre.passRtg, passTdRate: pre.passTdRate,
+        qbRushPg: pre.qbRushPg,
+      };
+    }
+
+    function projectionPool() {
+      return state.players.filter((p) => p.projPts !== null && p.projPts !== undefined)
+        .map((p) => ({ id: p.id, pos: p.pos, projPts: p.projPts, projPpg: Math.round((p.projPts / 17) * 100) / 100 }));
+    }
+    function reprice() {
+      state.pricing = computeAuctionValues(projectionPool(), state.settings);
+    }
+    /* The FAAB demand gate always prices on the default $200 league (10
+       teams, superflex, standard slots) — the same anchor the full app's
+       gate uses — never on the user's Player-tab settings, so editing the
+       auction budget above cannot move the gate's star/no-demand lines. */
+    const GATE_SETTINGS = { teams: 10, superflex: true, budget: 200, slots: { qb: 1, rb: 2, wr: 2, te: 1, flex: 1, sflex: 1, bench: 6 } };
+    let gatePricingCache = null;
+    function gatePricing() {
+      if (!gatePricingCache) gatePricingCache = computeAuctionValues(projectionPool(), GATE_SETTINGS);
+      return gatePricingCache;
+    }
+
+    /* Situation layer (mirrors the full app's FAAB tab): the price model
+       sees only the player's own production — no injuries, no depth chart.
+       When every player ahead of him at his position on his NFL team is
+       out, flag the vacated role and quantify it; the price never moves.
+       Being out himself is its own flag (a stash decision). */
+    const OUT_INJURY = new Set(["Out", "IR", "PUP", "Doubtful"]);
+    function isOutPlayer(p) { return OUT_INJURY.has(p.injury || ""); }
+    function faabSituation(player) {
+      if (isOutPlayer(player)) {
+        return { kind: "player_out", injuredName: null, injuredStatus: player.injury || "out", injuredPpg: null, injuredSnapShare: null, injuredOppPg: null, roleBasis: null };
+      }
+      if (!player.team || !PRICED.includes(player.pos)) return null;
+      const myPpg = player.form && isNum(player.form.ppg) ? player.form.ppg : null;
+      const roleOf = (p) => {
+        const form = p.form, prior = p.pre;
+        if (form && isNum(form.ppg)) {
+          if ((form.gp || 0) < 4 && prior && isNum(prior.priorPpg)) {
+            return { ppg: prior.priorPpg, basis: "prior", snapShare: isNum(prior.snapShare) ? prior.snapShare : (isNum(form.snapShare) ? form.snapShare : null), oppPg: isNum(prior.oppPg) ? prior.oppPg : (isNum(form.oppPg) ? form.oppPg : null) };
+          }
+          return { ppg: form.ppg, basis: "current", snapShare: isNum(form.snapShare) ? form.snapShare : null, oppPg: isNum(form.oppPg) ? form.oppPg : null };
+        }
+        if (isNum(p.projPts)) return { ppg: p.projPts / 17, basis: "projection", snapShare: null, oppPg: null };
+        return null;
+      };
+      const peers = state.players
+        .filter((p) => p.team === player.team && p.pos === player.pos && p.id !== player.id)
+        .map((p) => ({ player: p, role: roleOf(p) }))
+        .filter((x) => x.role !== null)
+        .sort((a, b) => b.role.ppg - a.role.ppg);
+      const top = peers[0];
+      const ahead = peers.filter((x) => myPpg === null || x.role.ppg > myPpg);
+      if (top && top.role.ppg >= 8 && isOutPlayer(top.player) && ahead.length > 0 && ahead.every((x) => isOutPlayer(x.player))) {
+        return { kind: "next_man_up", injuredName: top.player.name, injuredStatus: top.player.injury || "out", injuredPpg: top.role.ppg, injuredSnapShare: top.role.snapShare, injuredOppPg: top.role.oppPg, roleBasis: top.role.basis };
+      }
+      return null;
+    }
+
+    /* Demand gate (mirrors the full app): the quantile model trained only
+       on players who actually drew bids, so it cannot say "$0 — nobody
+       wants him" and cannot price a star who would never be dropped.
+       Below-replacement projection with no startable form collapses to
+       $0–$1; a $20+ projection on the $200 scale gets no invented number.
+       The gate stands down for next-man-up (real demand) and for players
+       who are out themselves (a legitimate stash question). */
+    function faabGate(player, situation, pred, f) {
+      const pricing = gatePricing();
+      const entry = pricing.values.get(player.id) || null;
+      const replPpg = pricing.replacementPpg[player.pos] !== undefined && pricing.replacementPpg[player.pos] !== null ? pricing.replacementPpg[player.pos] : null;
+      const ppgBefore = isNum(f.ppgBefore) ? f.ppgBefore : null;
+      const prevWeekPts = isNum(f.prevWeekPts) ? f.prevWeekPts : null;
+      const demand = {
+        state: "normal",
+        projRank: entry ? entry.posProjRank : null,
+        projPpg: isNum(player.projPts) ? Math.round((player.projPts / 17) * 100) / 100 : null,
+        projValue: entry ? entry.value : null,
+        projVor: entry ? entry.vor : null,
+        replacementPpg: replPpg,
+        formPpg: ppgBefore,
+        modelMedian: pred.clearingQuantiles.q50,
+        modelNeededBid: pred.neededBid,
+      };
+      let clearingQuantiles = pred.clearingQuantiles, neededBid = pred.neededBid;
+      if ((!situation || situation.kind !== "player_out") && PRICED.includes(player.pos)) {
+        if (entry && entry.value >= 20) {
+          demand.state = "out_of_range";
+          clearingQuantiles = null; neededBid = null;
+        } else if (!situation || situation.kind !== "next_man_up") {
+          const formWeak = ppgBefore === null || replPpg === null || ppgBefore < replPpg;
+          const lastWeekPop = prevWeekPts !== null && prevWeekPts >= 15;
+          if ((entry ? entry.value : 0) === 0 && formWeak && !lastWeekPop) {
+            demand.state = "no_demand";
+            clearingQuantiles = { q10: 0, q25: 0, q50: 0, q75: 0, q90: 1 };
+            neededBid = { p50: 0, p75: 1, p90: 1 };
+          }
+        }
+      }
+      return { demand: demand, clearingQuantiles: clearingQuantiles, neededBid: neededBid };
+    }
+    function auctionOf(player) {
+      if (!state.pricing) return null;
+      return state.pricing.values.get(player.id) || null;
+    }
+
+    function openExplainer(key) {
+      const e = EXPLAINERS[key];
+      if (!e) return;
+      $("modal-title").textContent = e.title;
+      $("modal-body").textContent = e.body;
+      $("modal-back").hidden = false;
+    }
+    function closeExplainer() { $("modal-back").hidden = true; }
+
+    function disclosure(id, title, aside, bodyHtml) {
+      return '<div class="disclosure"><button type="button" class="head" data-disc="' + id + '" aria-expanded="false">' +
+        '<span>' + esc(title) + '</span><span><span class="aside">' + esc(aside || "") + '</span> <span class="chev">▸</span></span></button>' +
+        '<div class="body" id="disc-' + id + '" hidden>' + bodyHtml + "</div></div>";
+    }
+    function wireDisclosures(root) {
+      root.querySelectorAll("[data-disc]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const body = $("disc-" + btn.getAttribute("data-disc"));
+          const open = body.hidden;
+          body.hidden = !open;
+          btn.setAttribute("aria-expanded", String(open));
+          btn.querySelector(".chev").textContent = open ? "▾" : "▸";
+        });
+      });
+    }
+    function statCell(k, v) { return '<div class="stat"><span class="k">' + esc(k) + '</span><span class="v num">' + esc(v) + "</span></div>"; }
+    function hero(label, value, sub, key) {
+      return '<button type="button" class="hero" data-explain="' + key + '" aria-label="' + esc(label) + ": " + esc(value) + '. What is this?">' +
+        '<span class="k">' + esc(label) + '</span><span class="v num">' + esc(value) + '</span><span class="s">' + esc(sub || "") + "</span></button>";
+    }
+    function wireExplainers(root) {
+      root.querySelectorAll("[data-explain]").forEach((el) => {
+        el.addEventListener("click", () => openExplainer(el.getAttribute("data-explain")));
+      });
+    }
+
+    function renderPlayer() {
+      const root = $("view-player");
+      const player = state.byId.get(state.selectedId);
+      if (!player) {
+        root.innerHTML = '<div class="card empty"><p><b>Pick a player above</b></p>' +
+          '<p class="dim">Search to see top-5 odds, starter odds, predicted VOR and the projection-based auction value. The FAAB tab prices the next waiver claim for the same player.</p></div>';
+        return;
+      }
+      const score = state.scorer.score(scoreInputs(player, state.bid));
+      const auction = auctionOf(player);
+      const hasAuction = auction && auction.value > 0;
+      const valueRef = hasAuction ? auction.value : score.fairPrice200;
+      const verdict = state.bid <= valueRef - 5 ? "value" : state.bid >= valueRef + 5 ? "overpay" : "fair";
+      const verdictLabel = verdict === "value" ? "Value" : verdict === "overpay" ? "Overpay" : "Fair";
+      const pre = player.pre, form = player.form, meta = state.meta;
+      const rel = (state.features.head_reliability) || {};
+
+      let html = '<div class="card"><div class="identity"><div><h2>' + esc(player.name) + "</h2>" +
+        '<p class="sub">' + esc(player.pos) + (player.team ? " · " + esc(player.team) : "") + " · Age " + fmtInt(player.age) +
+        (player.injury ? " · " + esc(player.injury) : "") + "</p></div>" +
+        '<span class="chip ' + verdict + '">' + verdictLabel + "</span></div>";
+
+      html += '<label class="bid-label" for="bid">Your bid ($)</label>' +
+        '<input id="bid" class="bid-input num" type="number" inputmode="numeric" min="0" max="1000" step="1" value="' + state.bid + '" aria-label="Your bid in dollars" />';
+
+      html += '<div class="heroes">' +
+        hero("P(top-5)", fmtPct(score.pTop5), "finish top-5 at " + player.pos, "pTop5") +
+        hero("P(starter)", fmtPct(score.pStarter), "beats replacement", "pStarter") +
+        hero("Model VOR", fmtNum(score.vorProfile, 0), "model's profile estimate", "vor") +
+        hero(hasAuction ? "Auction value" : "Fair price*", fmtMoney(valueRef), hasAuction ? fmtNum(auction.projPts, 0) + " proj pts" : "model anchor", hasAuction ? "auctionValue" : "fairPrice") +
+        "</div>";
+
+      html += '<p class="verdict-line">At <b>' + fmtMoney(state.bid) + "</b> vs <b>" + fmtMoney(valueRef) + "</b> " +
+        (hasAuction ? "projected value (" + fmtNum(auction.projPts, 0) + " proj pts, +" + fmtNum(auction.vor, 0) + " vs the pricing replacement level)." : "model profile anchor (no projection for this player).") +
+        (score.sparseProfile ? " Thin profile — lean on the ranking, not the exact number." : "") + "</p>" +
+        '<p class="tap-hint">Tap any number to see what it means.</p></div>';
+
+      let profile = '<div class="statgrid">' +
+        statCell("Prior PPG", fmtNum(pre.priorPpg)) + statCell("Prior pts", fmtNum(pre.priorPts, 0)) +
+        statCell("Finish", pre.priorRank ? player.pos + pre.priorRank : "—") +
+        statCell("GP / missed", fmtInt(pre.priorGp) + " / " + fmtInt(pre.priorMissed)) +
+        statCell("Snap share", fmtShare(pre.snapShare)) + statCell("Target share", fmtShare(pre.targetShare)) +
+        statCell("Rush share", fmtShare(pre.rushShare)) + statCell("Opp / game", fmtNum(pre.oppPg)) +
+        statCell("ECR (pos)", pre.ecrPos ? player.pos + Math.round(pre.ecrPos) : "—") +
+        statCell("ECR overall", fmtInt(pre.ecrOverall)) + statCell("ECR SD", fmtNum(pre.ecrSd)) +
+        statCell("Proj pts", hasAuction || auction ? fmtNum(auction ? auction.projPts : null, 0) : "—") +
+        "</div>" +
+        '<p class="note">Gathered automatically (Sleeper production + FantasyPros consensus) — shown as read-only context. These preseason inputs, plus your bid, are the only numbers the model scores. Inputs as of ' + meta.vintageShort + '.</p>';
+      html += disclosure("profile", "Player profile", meta.priorSeason + " season", profile);
+
+      if (form) {
+        let formHtml = '<div class="statgrid">' +
+          statCell("Games", fmtInt(form.gp)) + statCell("PPG", fmtNum(form.ppg)) +
+          statCell("Total pts", fmtNum(form.pts, 0)) + statCell("Missed", fmtInt(form.missed)) +
+          statCell("Snap", fmtShare(form.snapShare)) + statCell("Target", fmtShare(form.targetShare)) +
+          statCell("Rush", fmtShare(form.rushShare)) + statCell("Opp/g", fmtNum(form.oppPg)) +
+          "</div>" +
+          '<p class="note">Current-season form is context only — it never changes the prediction. <button type="button" class="linkbtn" data-explain="currentForm">Why not?</button></p>';
+        html += disclosure("form", "In-season form", meta.currentSeason + " · through Week " + meta.currentThroughWeek, formHtml);
+      }
+
+      const hnT = (rel.top5 && rel.top5[player.pos]) || {};
+      const hnS = (rel.starter && rel.starter[player.pos]) || {};
+      let detail = '<div class="statgrid">' +
+        statCell("Top-5 · XGBoost", fmtPct(score.pTop5Xgb)) + statCell("Top-5 · Logistic", fmtPct(score.pTop5LrExt)) +
+        statCell("Starter · XGBoost", fmtPct(score.pStarterXgb)) + statCell("Starter · Logistic", fmtPct(score.pStarterLrExt)) +
+        statCell("VOR at price", fmtNum(score.vorExpectedAtPrice, 0)) +
+        statCell("Model fair price", fmtMoney(score.fairPrice200)) +
+        statCell("Profile complete", fmtPct(score.profileCompleteness)) +
+        statCell("Price (normalized)", "$" + fmtNum(score.priceNorm200, 0)) +
+        "</div>" +
+        '<p class="note">Shipped probabilities are a 50/50 average of the XGBoost trees and a 5-feature logistic model. Holdout reliability at ' + player.pos +
+        ": top-5 AUC " + fmtNum(hnT.ensemble_auc, 3) + " (" + esc(hnT.best_tool || "") + "), starter AUC " + fmtNum(hnS.ensemble_auc, 3) + " (" + esc(hnS.best_tool || "") + "). " +
+        esc(hnT.note || "") + ' The "Model fair price" is the profile-only regression anchor — a coarse sanity band, not the price to bid against.</p>';
+      html += disclosure("detail", "Model detail", "ensemble split", detail);
+
+      root.innerHTML = html;
+      wireDisclosures(root); wireExplainers(root);
+      const bidEl = $("bid");
+      bidEl.addEventListener("input", () => {
+        const v = parseFloat(bidEl.value);
+        state.bid = Number.isFinite(v) && v >= 0 ? v : 0;
+        renderPlayer();
+        const nb = $("bid");
+        nb.focus();
+        nb.setSelectionRange(nb.value.length, nb.value.length);
+      });
+    }
+
+    function topRivals(position) {
+      const pos = position === "DST" ? "DEF" : position;
+      const rows = (state.faabTables.faabRivals || []).filter((r) => r.position === pos && r.manager !== "gizzle4");
+      const out = rows.map((r) => ({
+        manager: r.manager,
+        bidRange: "$" + Math.round(r.q25) + "–$" + Math.round(r.q75),
+        typicalBid: "$" + Math.round(r.med),
+        digitNote: r.pct_49 >= 0.14 ? "likes 4/9 endings (one under a multiple of five)" : r.pct_05 >= 0.5 ? "bids round 0/5 numbers" : "",
+        score: r.p_bid * r.q75,
+      }));
+      out.sort((a, b) => b.score - a.score);
+      return out.slice(0, 3);
+    }
+
+    function renderFaab() {
+      const root = $("view-faab");
+      const player = state.byId.get(state.selectedId);
+      if (!player) {
+        root.innerHTML = '<div class="card empty"><p><b>Pick a player above</b></p>' +
+          '<p class="dim">Search to see what he will cost in Fantasy 101\'s next Wednesday FAAB auction.</p></div>';
+        return;
+      }
+      const meta = state.meta, fs = meta.faabState;
+      const week = meta.currentThroughWeek + 1;
+      const f = player.faab || {};
+      const pred = state.faabModel.predict({
+        position: player.pos, week: week,
+        prevWeekPts: f.prevWeekPts !== undefined ? f.prevWeekPts : null,
+        ppgBefore: f.ppgBefore !== undefined ? f.ppgBefore : null,
+        gamesBefore: f.gamesBefore !== undefined ? f.gamesBefore : null,
+        prevPtsPct: f.prevPtsPct !== undefined ? f.prevPtsPct : null,
+        faabMax: fs.faabMax, faabMed: fs.faabMed,
+      });
+      const situation = faabSituation(player);
+      const gated = faabGate(player, situation, pred, f);
+      const demand = gated.demand;
+      const q = gated.clearingQuantiles, nb = gated.neededBid;
+      const remaining = fs.ericRemaining;
+      const fingerprint = (state.faabTables.faabFingerprints || []).find((x) => x.manager === "gizzle4");
+      const val = state.faabTables.faabValidation || {};
+
+      let html = '<div class="card"><div class="identity"><div><h2>' + esc(player.name) + "</h2>" +
+        '<p class="sub">' + esc(player.pos) + (player.team ? " · " + esc(player.team) : "") + " · Week " + week + ' Wednesday auction</p></div>' +
+        '<span class="chip plain">' + (remaining !== null && remaining !== undefined ? fmtMoney(remaining) + " left" : "FAAB unknown") + "</span></div>" +
+        '<p class="note" style="margin-top:0.4rem">Fantasy 101 XXI only · form through Week ' + meta.currentThroughWeek + " (" + meta.currentSeason + ') · ' + esc(fs.source) + "</p>";
+
+      if (situation) {
+        if (situation.kind === "next_man_up") {
+          html += '<div class="callout"><p class="t">Role change the price model can\'t see</p><p>' +
+            esc(situation.injuredName) + " (" + esc(situation.injuredStatus) + ") is out — " + esc(player.name) + " is next up at " + esc(player.pos) +
+            (player.team ? " for " + esc(player.team) : "") + ". The vacated role produced " + fmtNum(situation.injuredPpg) + " PPG" +
+            (situation.roleBasis === "prior" ? " last season" : situation.roleBasis === "projection" ? " (preseason projection)" : " this season") +
+            (situation.injuredSnapShare !== null ? " on a " + Math.round(situation.injuredSnapShare * 100) + "% snap share" : "") +
+            ". The price below is built from " + esc(player.name) + "'s own numbers as a backup (" + fmtNum(f.ppgBefore) + " PPG) — the model has no injury input, so expect competition at the top of this range, or past it.</p>" +
+            '<button type="button" class="linkbtn" data-explain="faabSituation">Why the price can\'t see this</button></div>';
+        } else {
+          html += '<div class="callout bad"><p class="t">He\'s out himself</p><p>' +
+            esc(player.name) + " is " + esc(situation.injuredStatus) + ". The model prices his past production and can't see that he won't play — only bid on him as a stash.</p></div>";
+        }
+      }
+
+      if (demand.state === "out_of_range") {
+        html += '<div class="callout"><p class="t">Outside what this model can price</p><p>' +
+          esc(player.name) + " projects as " + (demand.projRank !== null ? "the " + esc(player.pos) + demand.projRank : "a top player at " + esc(player.pos)) +
+          (demand.projPpg !== null ? " — " + fmtNum(demand.projPpg) + " projected PPG" : "") +
+          (demand.projValue !== null ? ", a " + fmtMoney(demand.projValue) + " player on a $200 draft budget" : "") +
+          ". Players like this are never actually on waivers, and the model was trained on 2,404 real Fantasy 101 claims — it has no comparable case, so it won't invent a number. If he were ever dropped, expect him to command most of a remaining budget.</p>" +
+          '<button type="button" class="linkbtn" data-explain="faabDemand">Why the model won\'t price him</button></div>';
+        html += "</div>";
+      } else if (q && nb) {
+      if (demand.state === "no_demand") {
+        html += '<div class="callout"><p class="t">No real demand — expect $0–$1</p><p>' +
+          esc(player.name) + " projects below replacement at " + esc(player.pos) +
+          (demand.projVor !== null ? " (" + fmtNum(demand.projVor, 0) + " pts vs replacement)" : "") +
+          (demand.formPpg !== null ? " and his current form is " + fmtNum(demand.formPpg) + " PPG" : "") +
+          (demand.replacementPpg !== null ? ", under the " + fmtNum(demand.replacementPpg) + " PPG replacement line" : "") +
+          ". That profile isn't expected to draw real bids — he should clear for $0, and a $1 bid (about a 90% win bid here) wins him if you want the stash.</p>" +
+          '<p class="small">The raw model read was a ' + fmtMoney(demand.modelMedian) + " median — it only ever trained on players who drew bids, so it has no way to say &ldquo;nobody wants him.&rdquo; The demand gate supplies that answer from projections and current form.</p>" +
+          '<button type="button" class="linkbtn" data-explain="faabDemand">How the demand gate works</button></div>';
+      }
+
+      html += '<button type="button" class="clearing" data-explain="faabClearing" aria-label="Clearing price: what is this?">' +
+        '<span class="k">Clearing price · price to beat</span>' +
+        '<span class="v num">' + fmtMoney(q.q25) + "–" + fmtMoney(q.q75) + " likely · median " + fmtMoney(q.q50) + "</span>" +
+        '<span class="s">80% band ' + fmtMoney(q.q10) + "–" + fmtMoney(q.q90) + " · tap to see validation</span></button>";
+
+      const tiles = [["~50% win", nb.p50], ["~75% win", nb.p75], ["~90% win", nb.p90]];
+      html += '<div class="heroes" style="grid-template-columns:repeat(3,1fr)">' + tiles.map(([label, bid]) => {
+        let sub;
+        if (remaining === null || remaining === undefined) sub = "remaining unknown";
+        else if (bid <= remaining) sub = "leaves " + fmtMoney(remaining - bid);
+        else sub = fmtMoney(bid - remaining) + " over budget";
+        return '<button type="button" class="hero" data-explain="faabNeeded" aria-label="' + label + ": bid " + fmtMoney(bid) + '. What is this?">' +
+          '<span class="k">' + label + '</span><span class="v num">' + fmtMoney(bid) + '</span><span class="s">' + esc(sub) + "</span></button>";
+      }).join("") + "</div>";
+
+      if (remaining !== null && remaining !== undefined) {
+        html += '<p class="verdict-line">You have <b>' + fmtMoney(remaining) + "</b> of " + fmtMoney(fs.ericBudget) + " left (" + fmtMoney(fs.ericSpent) + " spent). The 75% bid " +
+          (nb.p75 <= remaining ? "fits" : "does <b>not</b> fit") + " your remaining FAAB.</p>";
+      }
+      html += '<p class="tap-hint">Price quantiles are the validated part: cold-tested 2025–26 (n=' + fmtInt(val.test_n) + "), actuals beat q75 " +
+        Math.round((val.frac_actual_above_q75 || 0) * 100) + "% of the time (ideal 25%) and q90 " + Math.round((val.frac_actual_above_q90 || 0) * 100) + "% (ideal 10%).</p></div>";
+      } else {
+        html += "</div>";
+      }
+
+      const rivals = topRivals(player.pos);
+      html += '<div class="card"><div class="panel-head"><h3>Habitual bidders</h3>' +
+        '<button type="button" class="linkbtn" data-explain="faabRivals">Not a prediction — why?</button></div>' +
+        '<p class="note" style="margin-top:0.3rem">Habitual bidders, not a prediction. Naming the winner validated at ~' +
+        Math.round((val.rival_top3_hit_rate || 0) * 100) + "–36% top-3 vs " + Math.round((val.rival_top3_chance || 0) * 100) +
+        "% by chance; when the winner is listed, their bid landed in range " + Math.round((val.winner_bid_in_range_when_top3 || 0) * 100) + '% of the time.</p><ul class="rivals">';
+      for (const r of rivals) {
+        html += "<li><span class=\"mgr\"><b>" + esc(r.manager) + "</b>" + (r.digitNote ? "<span>" + esc(r.digitNote) + "</span>" : "") +
+          '</span><span class="amt num">' + esc(r.bidRange) + "<span>typical " + esc(r.typicalBid) + "</span></span></li>";
+      }
+      html += "</ul></div>";
+
+      if (fingerprint) {
+        html += '<div class="card"><div class="panel-head"><h3>Your bidding fingerprint</h3></div>' +
+          '<p style="margin:0.4rem 0 0">High-volume $0/$1 bidder — ' + Math.round(fingerprint.pct_01 * 100) + '% of his bids are $0/$1 lottery shots, median bid $0, no detectable 4/9 digit habit.</p>' +
+          '<p class="note">' + fmtInt(fingerprint.bids) + " recorded bids · median " + fmtMoney(fingerprint.median_bid) + "</p></div>";
+      }
+
+      let inputs = '<div class="statgrid">' +
+        statCell("Last week pts", fmtNum(f.prevWeekPts)) + statCell("Season PPG", fmtNum(f.ppgBefore)) +
+        statCell("Games", fmtInt(f.gamesBefore)) + statCell("Last-wk %ile", f.prevPtsPct === null || f.prevPtsPct === undefined ? "—" : fmtPct(f.prevPtsPct)) +
+        statCell("Rival FAAB max", fmtMoney(fs.faabMax)) + statCell("Rival FAAB med", fmtMoney(fs.faabMed)) +
+        statCell("Position", player.pos) + statCell("Week", String(week)) +
+        (situation && situation.kind === "next_man_up" ? statCell("Vacated role PPG", fmtNum(situation.injuredPpg)) + statCell("Role snap share", situation.injuredSnapShare === null ? "—" : fmtPct(situation.injuredSnapShare)) : "") +
+        "</div>" +
+        '<p class="note">Gathered with the input snapshot (through the most recent completed week / Wednesday run). Missing inputs stay missing — the model routes around them, same as in training. 2,404 bids, 2020–2026, losers included.</p>';
+      html += disclosure("faabinputs", "Model inputs", "Week " + week, inputs);
+
+      root.innerHTML = html;
+      wireDisclosures(root); wireExplainers(root);
+    }
+
+    function render() {
+      $("view-player").hidden = state.view !== "player";
+      $("view-faab").hidden = state.view !== "faab";
+      $("tab-player").setAttribute("aria-selected", String(state.view === "player"));
+      $("tab-faab").setAttribute("aria-selected", String(state.view === "faab"));
+      if (state.view === "player") renderPlayer(); else renderFaab();
+    }
+
+    function pickPlayer(id) {
+      state.selectedId = id;
+      $("search").value = "";
+      $("suggestions").hidden = true;
+      const player = state.byId.get(id);
+      const auction = player ? auctionOf(player) : null;
+      if (auction && auction.value > 0) state.bid = auction.value;
+      render();
+    }
+
+    function readSettings() {
+      const num = (id, dflt) => { const v = parseFloat($(id).value); return Number.isFinite(v) ? v : dflt; };
+      state.settings = {
+        teams: Math.max(2, Math.round(num("set-teams", 10))),
+        budget: Math.max(1, num("set-budget", 200)),
+        superflex: $("set-superflex").value === "1",
+        slots: {
+          qb: Math.max(0, Math.round(num("set-qb", 1))), rb: Math.max(0, Math.round(num("set-rb", 2))),
+          wr: Math.max(0, Math.round(num("set-wr", 2))), te: Math.max(0, Math.round(num("set-te", 1))),
+          flex: Math.max(0, Math.round(num("set-flex", 1))),
+          sflex: Math.max(0, Math.round(num("set-sflex", 1))),
+          bench: Math.max(0, Math.round(num("set-bench", 6))),
+        },
+      };
+      const s = state.settings;
+      $("settings-aside").textContent = s.teams + " teams · $" + s.budget + " · " + (s.superflex ? "superflex" : "no superflex");
+    }
+
+    function wireSettings() {
+      const ids = ["set-teams", "set-budget", "set-superflex", "set-qb", "set-rb", "set-wr", "set-te", "set-flex", "set-sflex", "set-bench"];
+      const onSettingsChange = () => {
+        // Apply the edit to pricing state immediately: update the settings
+        // summary first, then reprice and recompute the selected player's
+        // verdict. Before the data snapshot loads there is nothing to
+        // reprice yet — readSettings() still records the edit, and init
+        // re-reads the settings before its first reprice() so no edit is
+        // ever silently dropped.
+        readSettings();
+        if (!state.players.length) return;
+        reprice();
+        const player = state.byId.get(state.selectedId);
+        const auction = player ? auctionOf(player) : null;
+        if (auction && auction.value > 0) state.bid = auction.value;
+        render();
+      };
+      ids.forEach((id) => {
+        $(id).addEventListener("change", onSettingsChange);
+        $(id).addEventListener("input", onSettingsChange);
+      });
+      $("settings-head").addEventListener("click", () => {
+        const body = $("settings-body");
+        const open = body.hidden;
+        body.hidden = !open;
+        $("settings-head").setAttribute("aria-expanded", String(open));
+        $("settings-chev").textContent = open ? "▾" : "▸";
+      });
+    }
+
+    function wireSearch() {
+      const input = $("search"), box = $("suggestions");
+      input.addEventListener("input", () => {
+        const q = input.value.trim().toLowerCase();
+        if (q.length < 2) { box.hidden = true; return; }
+        const matches = state.players.filter((p) => p.name.toLowerCase().includes(q)).slice(0, 40);
+        matches.sort((a, b) => {
+          const pa = state.scorer.score(scoreInputs(a, 20)).pStarter;
+          const pb = state.scorer.score(scoreInputs(b, 20)).pStarter;
+          return pb - pa;
+        });
+        const top = matches.slice(0, 8);
+        if (!top.length) {
+          box.innerHTML = '<p class="none">No match in the gathered pool.</p>';
+        } else {
+          box.innerHTML = "<ul>" + top.map((p) => {
+            const sc = state.scorer.score(scoreInputs(p, 20));
+            return '<li><button type="button" class="suggestion" data-pick="' + p.id + '" aria-label="Select ' + esc(p.name) + '">' +
+              '<span class="who"><b>' + esc(p.name) + "</b><span>" + esc(p.pos) + (p.team ? " · " + esc(p.team) : "") + "</span></span>" +
+              '<span class="odds num">' + fmtPct(sc.pStarter) + " starter</span></button></li>";
+          }).join("") + "</ul>";
+          box.querySelectorAll("[data-pick]").forEach((btn) => {
+            btn.addEventListener("click", () => pickPlayer(btn.getAttribute("data-pick")));
+          });
+        }
+        box.hidden = false;
+      });
+      input.addEventListener("blur", () => { setTimeout(() => { box.hidden = true; }, 180); });
+      input.addEventListener("focus", () => { if (input.value.trim().length >= 2) box.hidden = false; });
+    }
+
+    function fmtDate(ms) {
+      return new Date(ms).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
+    }
+
+    async function init() {
+      try {
+        // Wire the settings UI before any fetch: an edit must land in
+        // pricing state even while the baked-in data is still loading (or
+        // if a fetch fails), never sit in the inputs unapplied. Seeding
+        // state from the DOM here also keeps state.settings honest if the
+        // markup defaults ever change.
+        wireSettings();
+        readSettings();
+        const base = "assets/";
+        const [players, meta, features, top5, starter, vor, vorNp, faabQ, faabTables] = await Promise.all([
+          fetch(base + "data/players.json").then((r) => r.json()),
+          fetch(base + "data/meta.json").then((r) => r.json()),
+          fetch(base + "models/features.json").then((r) => r.json()),
+          fetch(base + "models/model_top5.json").then((r) => r.json()),
+          fetch(base + "models/model_starter.json").then((r) => r.json()),
+          fetch(base + "models/model_vor.json").then((r) => r.json()),
+          fetch(base + "models/model_vor_noprice.json").then((r) => r.json()),
+          fetch(base + "models/faab_quantiles.json").then((r) => r.json()),
+          fetch(base + "models/faab_rivals.json").then((r) => r.json()),
+        ]);
+        state.players = players;
+        state.byId = new Map(players.map((p) => [p.id, p]));
+        state.meta = meta;
+        state.features = features;
+        state.scorer = makeScorer(features, { top5: top5, starter: starter, vor: vor, vorNoprice: vorNp });
+        state.faabModel = makeFaab(faabQ);
+        state.faabTables = faabTables;
+        meta.vintageShort = fmtDate(meta.asOfMs);
+        meta.vintage = "Inputs as of " + fmtDate(meta.asOfMs) + " · prior season " + meta.priorSeason +
+          " · ECR " + (meta.ecrScrapeDate || "—") + " · " + meta.currentSeason + " through Week " + meta.currentThroughWeek +
+          " · " + meta.poolSize + " players · all model math runs in your browser";
+        $("vintage").textContent = meta.vintage;
+        $("footer").innerHTML =
+          "<p>Preseason draft-day model (XGBoost + logistic ensemble) trained on 41,659 auction picks, 2020–2025. Expected performance from the validated champion's cold 2024–25 holdout: top-5 AUC 0.869, starter AUC 0.808; the production refit on all 2020–2025 data gets its next honest test in the 2026 season. Auction prices come from " + esc(meta.projSource) +
+          " priced over replacement under your league settings, and were sanity-checked against real draft prices (Josh Allen $48 here vs $51 paid in a real 2025 draft).</p>" +
+          "<p>The model only ever sees preseason inputs — attributes, prior completed seasons, preseason expert ranks, and your bid. In-season form is shown for context and never scored. FAAB Predictor: Fantasy 101 XXI only; quantile model trained 2020–2024 on 2,404 bids (losers included), cold-tested 2025–26.</p>" +
+          "<p>Static snapshot: player inputs baked in on " + fmtDate(meta.asOfMs) + ". Rebuilding the page with fresh inputs rolls the model forward to the next draft.</p>";
+        // Re-read the settings (any edit made during load applies now),
+        // reprice, and only then render the first player.
+        readSettings();
+        reprice();
+        wireSearch();
+        $("tab-player").addEventListener("click", () => { state.view = "player"; render(); });
+        $("tab-faab").addEventListener("click", () => { state.view = "faab"; render(); });
+        $("modal-close").addEventListener("click", closeExplainer);
+        $("modal-back").addEventListener("click", (e) => { if (e.target === $("modal-back")) closeExplainer(); });
+        // Default selection: highest projected player, so the page opens on a real result.
+        const first = players.filter((p) => p.projPts !== null && p.projPts !== undefined).sort((a, b) => b.projPts - a.projPts)[0];
+        if (first) {
+          state.selectedId = first.id;
+          const auction = auctionOf(first);
+          if (auction && auction.value > 0) state.bid = auction.value;
+        }
+        render();
+      } catch (err) {
+        $("vintage").innerHTML = '<span class="err">Could not load the baked-in data files. ' + esc(String(err)) + "</span>";
+      }
+    }
+    init();
+    </script>
+  </body>
+</html>

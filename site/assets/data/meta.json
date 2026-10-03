@@ -1,0 +1,22 @@
+{
+ "asOfMs": 1791042131330,
+ "targetSeason": 2026,
+ "priorSeason": 2025,
+ "currentSeason": 2026,
+ "currentThroughWeek": 3,
+ "ecrScrapeDate": "2026-preseason",
+ "projSource": "Sleeper season projections (Rotowire)",
+ "faabState": {
+  "season": 2026,
+  "week": 4,
+  "ericRemaining": 31,
+  "ericBudget": 100,
+  "ericSpent": 69,
+  "faabMax": 100,
+  "faabMed": 84,
+  "leagueName": "Fantasy 101 XXI",
+  "source": "Sleeper league rosters (Fantasy 101 XXI, 2026)"
+ },
+ "poolSize": 784,
+ "stateWeek": 4
+}
