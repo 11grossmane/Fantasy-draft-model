@@ -1,0 +1,363 @@
+{
+ "version": "v4-production",
+ "features": [
+  "price_norm",
+  "age",
+  "missed_prior",
+  "missed5",
+  "has_prior",
+  "pos_QB",
+  "pos_RB",
+  "pos_WR",
+  "pos_TE",
+  "ecr_overall",
+  "ecr_pos",
+  "ecr_sd",
+  "ecr_overall_log",
+  "ecr_pos_log",
+  "prior_pts_ppr",
+  "prior_ppg_ppr",
+  "prior_rank_ppr",
+  "prior_snap_share",
+  "prior_target_share",
+  "prior_rush_share",
+  "prior_opp_pg",
+  "years_exp",
+  "draft_round",
+  "draft_pick",
+  "age_sq",
+  "exp_youth",
+  "ppg_x_snap",
+  "ppg_per_dollar",
+  "price_x_age",
+  "ecr_vs_prior_rank",
+  "price_per_ecr"
+ ],
+ "features_by_target": {
+  "top5": [
+   "price_norm",
+   "age",
+   "missed_prior",
+   "missed5",
+   "has_prior",
+   "pos_QB",
+   "pos_RB",
+   "pos_WR",
+   "pos_TE",
+   "ecr_overall",
+   "ecr_pos",
+   "ecr_sd",
+   "ecr_overall_log",
+   "ecr_pos_log",
+   "prior_pts_ppr",
+   "prior_ppg_ppr",
+   "prior_rank_ppr",
+   "prior_snap_share",
+   "prior_target_share",
+   "prior_rush_share",
+   "prior_opp_pg",
+   "years_exp",
+   "draft_round",
+   "draft_pick",
+   "age_sq",
+   "exp_youth",
+   "ppg_x_snap",
+   "ppg_per_dollar",
+   "price_x_age",
+   "ecr_vs_prior_rank",
+   "price_per_ecr"
+  ],
+  "starter": [
+   "price_norm",
+   "age",
+   "missed_prior",
+   "missed5",
+   "has_prior",
+   "pos_QB",
+   "pos_RB",
+   "pos_WR",
+   "pos_TE",
+   "ecr_overall",
+   "ecr_pos",
+   "ecr_sd",
+   "ecr_overall_log",
+   "ecr_pos_log",
+   "prior_pts_ppr",
+   "prior_ppg_ppr",
+   "prior_rank_ppr",
+   "prior_snap_share",
+   "prior_target_share",
+   "prior_rush_share",
+   "prior_opp_pg",
+   "years_exp",
+   "draft_round",
+   "draft_pick",
+   "age_sq",
+   "exp_youth",
+   "ppg_x_snap",
+   "ppg_per_dollar",
+   "price_x_age",
+   "ecr_vs_prior_rank",
+   "price_per_ecr",
+   "prior_pts_per_opp",
+   "prior_pts_per_snap",
+   "prior_catch_rate",
+   "prior_adot",
+   "prior_rz_share",
+   "prior_pass_att_pg",
+   "prior_pass_rtg",
+   "prior_pass_td_rate",
+   "prior_qb_rush_pg"
+  ]
+ },
+ "features_noprice": [
+  "age",
+  "missed_prior",
+  "missed5",
+  "has_prior",
+  "pos_QB",
+  "pos_RB",
+  "pos_WR",
+  "pos_TE",
+  "ecr_overall",
+  "ecr_pos",
+  "ecr_sd",
+  "ecr_overall_log",
+  "ecr_pos_log",
+  "prior_pts_ppr",
+  "prior_ppg_ppr",
+  "prior_rank_ppr",
+  "prior_snap_share",
+  "prior_target_share",
+  "prior_rush_share",
+  "prior_opp_pg",
+  "years_exp",
+  "draft_round",
+  "draft_pick",
+  "age_sq",
+  "exp_youth",
+  "ppg_x_snap",
+  "ppg_per_dollar",
+  "price_x_age",
+  "ecr_vs_prior_rank",
+  "price_per_ecr"
+ ],
+ "positions": [
+  "QB",
+  "RB",
+  "WR",
+  "TE"
+ ],
+ "targets": {
+  "top5": "pos_rank <= 5 in the player's league that season",
+  "starter": "season points >= league replacement points (VOR >= 0)",
+  "vor": "season points minus league replacement points (league scoring)"
+ },
+ "train_seasons": "2020-2025 (all available; 2024-25 folded into training)",
+ "test_seasons": "none - production refit; next honest holdout is the 2026 season",
+ "selection": {
+  "recipe": "improvement loop champion (see validation_report.md s.12)",
+  "params": "D_d2_reg",
+  "decay": {
+   "top5": 0.7,
+   "starter": 0.85
+  },
+  "ensemble": {
+   "xgb_weight": 0.5,
+   "other": "lr_extended 5-feature logistic",
+   "note": "p_top5/p_starter in predict.py are the 50/50 ensemble; p_*_xgb are the pure trees"
+  },
+  "accepted_experiments": [
+   "e01_val",
+   "e02b_eff_starter",
+   "e03_dropoff",
+   "e05_ensemble"
+  ],
+  "refit": {
+   "date": "2026-10-02",
+   "rule": "frozen champion spec; deployment refit only, no search",
+   "boost_rounds": {
+    "top5": 91,
+    "starter": 107,
+    "vor": 75,
+    "vor_noprice": 80
+   },
+   "weight_anchor_season": 2025,
+   "rows": 41659
+  }
+ },
+ "calibration_crossfit": {
+  "top5": {
+   "method": "raw",
+   "note": "loop e12: train-fold OOF chose shrink s=1.0 in all cells; raw probabilities ship. See report s.12."
+  },
+  "starter": {
+   "method": "raw",
+   "note": "loop e12: train-fold OOF chose shrink s=1.0 in all cells; raw probabilities ship. See report s.12."
+  }
+ },
+ "head_reliability": {
+  "top5": {
+   "QB": {
+    "xgb_auc": 0.7567348297748595,
+    "ensemble_auc": 0.7447132850628387,
+    "lr_price_auc": 0.6930978531149641,
+    "lr_ext_auc": 0.7318530475315458,
+    "ensemble_auc_ci95": [
+     0.5691716061015306,
+     0.8943828404751513
+    ],
+    "best_tool": "xgb",
+    "note": "very wide CI - ranking only, do not treat as odds"
+   },
+   "RB": {
+    "xgb_auc": 0.9516035973006962,
+    "ensemble_auc": 0.9567785915443064,
+    "lr_price_auc": 0.9394875042065924,
+    "lr_ext_auc": 0.95810964593776,
+    "ensemble_auc_ci95": [
+     0.9165606477554377,
+     0.984652892123671
+    ],
+    "best_tool": "lr_extended",
+    "note": "p_* ships the ensemble; lr_extended was marginally better here"
+   },
+   "WR": {
+    "xgb_auc": 0.872389617072369,
+    "ensemble_auc": 0.8817223167193151,
+    "lr_price_auc": 0.8787024199196697,
+    "lr_ext_auc": 0.8859754005803233,
+    "ensemble_auc_ci95": [
+     0.7521103482771173,
+     0.9903521093189848
+    ],
+    "best_tool": "lr_extended",
+    "note": "p_* ships the ensemble; lr_extended was marginally better here"
+   },
+   "TE": {
+    "xgb_auc": 0.7988945564966905,
+    "ensemble_auc": 0.7818282974818141,
+    "lr_price_auc": 0.7517868563495407,
+    "lr_ext_auc": 0.7687834401859391,
+    "ensemble_auc_ci95": [
+     0.6437610359853686,
+     0.890971980215789
+    ],
+    "best_tool": "xgb",
+    "note": "p_* ships the ensemble; xgb was marginally better here"
+   }
+  },
+  "starter": {
+   "QB": {
+    "xgb_auc": 0.7639305946341673,
+    "ensemble_auc": 0.7622102600074085,
+    "lr_price_auc": 0.7291405595269057,
+    "lr_ext_auc": 0.7499288484660606,
+    "ensemble_auc_ci95": [
+     0.6459709540885654,
+     0.8909446058618898
+    ],
+    "best_tool": "xgb",
+    "note": "p_* ships the ensemble; xgb was marginally better here"
+   },
+   "RB": {
+    "xgb_auc": 0.8264446772783957,
+    "ensemble_auc": 0.8247404235685978,
+    "lr_price_auc": 0.805629183301492,
+    "lr_ext_auc": 0.8177823966181309,
+    "ensemble_auc_ci95": [
+     0.760428597447303,
+     0.882958389676562
+    ],
+    "best_tool": "xgb",
+    "note": "p_* ships the ensemble; xgb was marginally better here"
+   },
+   "WR": {
+    "xgb_auc": 0.8017302276740966,
+    "ensemble_auc": 0.799025276665962,
+    "lr_price_auc": 0.7622026650620155,
+    "lr_ext_auc": 0.7923211132097342,
+    "ensemble_auc_ci95": [
+     0.7322404444460426,
+     0.8549094236607117
+    ],
+    "best_tool": "xgb",
+    "note": "p_* ships the ensemble; xgb was marginally better here"
+   },
+   "TE": {
+    "xgb_auc": 0.7263172731358731,
+    "ensemble_auc": 0.7259869831884836,
+    "lr_price_auc": 0.7057301071385578,
+    "lr_ext_auc": 0.7081017220446763,
+    "ensemble_auc_ci95": [
+     0.5903879466951886,
+     0.8378663775365172
+    ],
+    "best_tool": "xgb",
+    "note": "p_* ships the ensemble; xgb was marginally better here"
+   }
+  }
+ },
+ "lr_extended": {
+  "top5": {
+   "features": [
+    "price_norm",
+    "ecr_pos",
+    "prior_ppg_ppr",
+    "age",
+    "missed_prior"
+   ],
+   "coef": [
+    0.0266283390561462,
+    -0.0900700315701587,
+    -0.01701734640014719,
+    -0.00446338302135247,
+    0.04277960328334887
+   ],
+   "intercept": -0.6541569767840328,
+   "medians": {
+    "price_norm": 5.0,
+    "ecr_pos": 26.98,
+    "prior_ppg_ppr": 12.386666666666668,
+    "age": 25.0,
+    "missed_prior": 1.0
+   }
+  },
+  "starter": {
+   "features": [
+    "price_norm",
+    "ecr_pos",
+    "prior_ppg_ppr",
+    "age",
+    "missed_prior"
+   ],
+   "coef": [
+    0.025866611541054848,
+    -0.03260689838012793,
+    0.09799720011726594,
+    -0.01569385212912234,
+    -0.05095357771335334
+   ],
+   "intercept": -0.07145208318785103,
+   "medians": {
+    "price_norm": 5.0,
+    "ecr_pos": 26.98,
+    "prior_ppg_ppr": 12.386666666666668,
+    "age": 25.0,
+    "missed_prior": 1.0
+   }
+  }
+ },
+ "fair_price_k_dollars_per_vor": 0.16327129970850288,
+ "fair_price_k_by_position": {
+  "QB": 0.12329614872643888,
+  "RB": 0.18978940986496282,
+  "TE": 0.1710989907211447,
+  "WR": 0.18707763705457237
+ },
+ "xgb_version": "3.4.1",
+ "notes": "v4 (production refit): identical spec to v3-loop champion; only the training window changed (all seasons, decay weights re-anchored at 2025). Calibration: raw probabilities, as with the champion. See validation_report.md s.13.",
+ "production_default": true,
+ "data_note": "Dataset = training_data_v3.csv, 41,659 picks, seasons 2020-2025. No 2018/2019 seasons exist anywhere in this pipeline; see validation_report.md s.13.",
+ "relationship": "v4-production is the v3-loop champion spec (features.json in the parent directory) retrained on all 2020-2025 data. The champion artifacts (model_*.json at bundle root, trained <=2023) are unchanged and remain the validated reference: their cold 2024-25 holdout metrics (top-5 AUC 0.869, starter AUC 0.808; validation_report.md s.12) are the honest out-of-sample expectations for this production model too. The production refit itself has no unbiased performance estimate until the 2026 season completes. head_reliability below is the champion's holdout table, carried over unchanged."
+}
