@@ -2,15 +2,15 @@
 """Weekly refresh of the static site's player snapshot.
 
 Re-pulls public Sleeper data (player pool, current-season weekly stats)
-and rebuilds site/assets/data/players.json and meta.json in the exact
+and rebuilds docs/assets/data/players.*.json and meta.json in the exact
 schema the site consumes. Draft-model projections (Sleeper/Rotowire
 season projections) and FantasyPros ECR are preseason-baked; this
 refresh updates injuries and in-season form, preserving stored
 preseason inputs where no live pull exists in CI.
 
 The site loads large files as sequential <100KB text parts
-(players.00.json ... plus players.parts.json), so this script writes
-those parts instead of a single players.json.
+(players.00.json ... plus players.parts.json), so this script reads
+and writes those parts instead of a single players.json.
 
 Run from repo root:  python scripts/refresh_site_data.py
 Exits non-zero on network failure so the workflow fails loudly
@@ -19,7 +19,7 @@ instead of committing stale or partial data.
 import json, os, sys, time, urllib.request
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATA = os.path.join(ROOT, "site", "assets", "data")
+DATA = os.path.join(ROOT, "docs", "assets", "data")
 API = "https://api.sleeper.app/v1"
 PART_SIZE = 98000  # keep each part comfortably under the commit pipeline limit
 
@@ -30,15 +30,24 @@ def get(url):
         return json.load(r)
 
 
+def read_parts(path_prefix, manifest_path):
+    with open(manifest_path) as f:
+        n = json.load(f)["parts"]
+    text = ""
+    for i in range(n):
+        with open(f"{path_prefix}.{i:02d}.json") as f:
+            text += f.read()
+    return json.loads(text)
+
+
 def write_parts(path_prefix, manifest_path, text):
     parts = [text[i:i + PART_SIZE] for i in range(0, len(text), PART_SIZE)]
-    # drop stale extras from a previously longer file
     i = 0
     for chunk in parts:
-        p = f"{path_prefix}.{i:02d}.json"
-        with open(p, "w") as f:
+        with open(f"{path_prefix}.{i:02d}.json", "w") as f:
             f.write(chunk)
         i += 1
+    # drop stale extras from a previously longer file
     while os.path.exists(f"{path_prefix}.{i:02d}.json"):
         os.remove(f"{path_prefix}.{i:02d}.json")
         i += 1
@@ -47,10 +56,9 @@ def write_parts(path_prefix, manifest_path, text):
 
 
 def main():
-    players_path = None  # players now ship as chunked parts (see write_parts)
     meta_path = os.path.join(DATA, "meta.json")
-    with open(players_path) as f:
-        players = json.load(f)
+    players = read_parts(os.path.join(DATA, "players"),
+                         os.path.join(DATA, "players.parts.json"))
     with open(meta_path) as f:
         meta = json.load(f)
 
@@ -86,8 +94,9 @@ def main():
     meta["currentThroughWeek"] = week
     meta["stateWeek"] = week
     meta["asOfMs"] = int(time.time() * 1000)
-    players_text = json.dumps(players)
-    write_parts(os.path.join(DATA, "players"), os.path.join(DATA, "players.parts.json"), players_text)
+    write_parts(os.path.join(DATA, "players"),
+                os.path.join(DATA, "players.parts.json"),
+                json.dumps(players))
     with open(meta_path, "w") as f:
         json.dump(meta, f, indent=1)
     print(f"refreshed {len(players)} players through week {week}")
