@@ -1160,8 +1160,12 @@
         readSettings();
         reprice();
         wireSearch();
-        $("tab-player").addEventListener("click", () => { state.view = "player"; render(); });
-        $("tab-faab").addEventListener("click", () => { state.view = "faab"; render(); });
+        // Remember the active tab for this browser tab, so the back button
+        // from Findings (or a reload) returns to the tab you were on.
+        const rememberView = () => { try { sessionStorage.setItem("ddm-view", state.view); } catch (e) {} };
+        try { const v = sessionStorage.getItem("ddm-view"); if (v === "faab" || v === "player") state.view = v; } catch (e) {}
+        $("tab-player").addEventListener("click", () => { state.view = "player"; rememberView(); render(); });
+        $("tab-faab").addEventListener("click", () => { state.view = "faab"; rememberView(); render(); });
         $("modal-close").addEventListener("click", closeExplainer);
         $("modal-back").addEventListener("click", (e) => { if (e.target === $("modal-back")) closeExplainer(); });
         // Default selection: highest projected player, so the page opens on a real result.
