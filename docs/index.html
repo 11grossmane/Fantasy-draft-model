@@ -549,8 +549,8 @@
       currentForm: { title: "In-season form", body: "Current-season production to date. Shown for context only. The draft model is a preseason model trained on preseason snapshots (age, auction price, prior completed seasons, preseason expert ranks), so these in-season numbers are never fed into its predictions. They roll into the model next draft season, when this season becomes the 'prior season'." },
       completeness: { title: "Profile completeness", body: "How many of the five headline inputs (ECR rank, prior PPG, prior finish, snap share, opportunities/game) are present for this player. Below 60% the profile is 'sparse' and outputs lean mostly on price — lean on the ranking, not the exact number." },
       faabClearing: { title: "Clearing price", body: "The model's predicted distribution of the price to beat (the highest rival bid) in Fantasy 101's Wednesday FAAB auction. Trained on 2,404 bids across 1,453 Wednesday auctions, 2020–2026, losers included.\n\nCold-tested on 2025–26 (n=173): the 50% band covered 71% of actual winning bids, the 80% band 89%; actuals beat the 75th percentile 28% of the time (ideal 25%) and the 90th 11% (ideal 10%). The upper tail — what you bid against — is the calibrated part." },
-      faabSituation: { title: "Role change — what the model can't see", body: "The price model only sees this player's own production so far — it has no injury or depth-chart input, so a backup stepping into a vacated starting role prices off his backup numbers. When the player(s) ahead of him on his own team are out, we flag it here and show what the vacated role actually produced (the injured starter's points, snap share, and opportunities per game). The price itself doesn't move — it's the cold-validated number from his own stats — but situations like this are exactly where real bids blow past the top of the range. Feeding the model the starter's production instead was tested and rejected: proven producers are almost never on waivers in the training data, so the model prices that profile down, not up." },
-      faabDemand: { title: "The demand gate", body: "The waiver price model was trained only on players who actually drew bids in Fantasy 101 (2,404 claims, 2020–2026). 'Nobody wants him — he clears for $0' never appears in that data, so the model puts a contested-claim price on every warm body; and a star who would never be dropped sits so far outside the training profiles that he gets priced like a hot pickup, sometimes below his own backup. Before the model's number is shown, a gate checks the player against projection-based value over replacement — the same pricing as the Player tab on the default $200 settings. Below replacement with no startable form → $0–$1, whatever the model said. Star-tier projection ($20+ of a $200 draft budget) → the model declines to price him rather than invent a number. The gate stands down when he's next man up behind an injured starter — that role change is real demand (it's how a backup goes for $41), and the role-change flag covers it — and when he's out himself, where the stash question is a legitimate one." },
+      faabSituation: { title: "Role change — what the model can't see", body: "The price model only sees this player's own production so far — it has no injury or depth-chart input, so a backup stepping into a vacated starting role prices off his backup numbers. When the player(s) ahead of him on his own team are out, we flag it here and show what the vacated role actually produced (the injured starter's points, snap share, and opportunities per game). We also flag a contested role: a healthy backfield battle where he is challenging a peer for the lead job — with or without an injury opening it up. The model can't see preseason depth-chart beliefs, camp reports, or social-media hype, and those are exactly what move bidding in these spots. The price itself doesn't move — it's the cold-validated number from his own stats — but situations like this are exactly where real bids blow past the top of the range. Feeding the model the starter's production instead was tested and rejected: proven producers are almost never on waivers in the training data, so the model prices that profile down, not up." },
+      faabDemand: { title: "The demand gate", body: "The waiver price model was trained only on players who actually drew bids in Fantasy 101 (2,404 claims, 2020–2026). 'Nobody wants him — he clears for $0' never appears in that data, so the model puts a contested-claim price on every warm body; and a star who would never be dropped sits so far outside the training profiles that he gets priced like a hot pickup, sometimes below his own backup. Before the model's number is shown, a gate checks the player against projection-based value over replacement — the same pricing as the Player tab on the default $200 settings. Below replacement with no startable form → $0–$1, whatever the model said. Star-tier projection ($20+ of a $200 draft budget) → the model declines to price him rather than invent a number. The gate stands down when he's next man up behind an injured starter or in a contested role battle — those are real demand (it's how a backup goes for $41, and it's why a hyped challenger draws bids on the chance he wins the job), and the role-change flag covers them — and when he's out himself, where the stash question is a legitimate one." },
       faabNeeded: { title: "Bid needed", body: "Clearing-price quantile plus $1 to win ties. The ~50% bid clears the predicted median rival bid about half the time; ~75% and ~90% trade more FAAB for more certainty. Probabilities come from the cold 2025–26 validation, not in-sample fit." },
       faabRivals: { title: "Habitual bidders — not a prediction", body: "These are the managers who habitually pay up for this position in Fantasy 101, with their typical bid ranges.\n\nValidated honestly: naming the actual winner hit ~29–36% top-3 vs 33% by chance — barely better than guessing, because who bids is driven by that week's roster need. When the winner was in the top 3, their bid landed in the shown range 81% of the time. Use the ranges, not the names, as the signal." },
     };
@@ -605,32 +605,34 @@
     /* Situation layer (mirrors the full app's FAAB tab): the price model
        sees only the player's own production — no injuries, no depth chart.
        When every player ahead of him at his position on his NFL team is
-       out, flag the vacated role and quantify it; the price never moves.
-       Being out himself is its own flag (a stash decision). */
+       out, flag the vacated role and quantify it; when he's in a genuine
+       battle for the lead role with a healthy peer — challenging a peer who
+       is next man up, or a timeshare where neither has separated — flag the
+       contested role. The price never moves. Being out himself is its own
+       flag (a stash decision). */
     const OUT_INJURY = new Set(["Out", "IR", "PUP", "Doubtful"]);
     function isOutPlayer(p) { return OUT_INJURY.has(p.injury || ""); }
-    function faabSituation(player) {
-      if (isOutPlayer(player)) {
-        return { kind: "player_out", injuredName: null, injuredStatus: player.injury || "out", injuredPpg: null, injuredSnapShare: null, injuredOppPg: null, roleBasis: null };
-      }
-      if (!player.team || !PRICED.includes(player.pos)) return null;
-      const myPpg = player.form && isNum(player.form.ppg) ? player.form.ppg : null;
-      const roleOf = (p) => {
-        const form = p.form, prior = p.pre;
-        if (form && isNum(form.ppg)) {
-          if ((form.gp || 0) < 4 && prior && isNum(prior.priorPpg)) {
-            return { ppg: prior.priorPpg, basis: "prior", snapShare: isNum(prior.snapShare) ? prior.snapShare : (isNum(form.snapShare) ? form.snapShare : null), oppPg: isNum(prior.oppPg) ? prior.oppPg : (isNum(form.oppPg) ? form.oppPg : null) };
-          }
-          return { ppg: form.ppg, basis: "current", snapShare: isNum(form.snapShare) ? form.snapShare : null, oppPg: isNum(form.oppPg) ? form.oppPg : null };
+    const roleOf = (p) => {
+      const form = p.form, prior = p.pre;
+      if (form && isNum(form.ppg)) {
+        if ((form.gp || 0) < 4 && prior && isNum(prior.priorPpg)) {
+          return { ppg: prior.priorPpg, basis: "prior", snapShare: isNum(prior.snapShare) ? prior.snapShare : (isNum(form.snapShare) ? form.snapShare : null), oppPg: isNum(prior.oppPg) ? prior.oppPg : (isNum(form.oppPg) ? form.oppPg : null) };
         }
-        if (isNum(p.projPts)) return { ppg: p.projPts / 17, basis: "projection", snapShare: null, oppPg: null };
-        return null;
-      };
-      const peers = state.players
+        return { ppg: form.ppg, basis: "current", snapShare: isNum(form.snapShare) ? form.snapShare : null, oppPg: isNum(form.oppPg) ? form.oppPg : null };
+      }
+      if (isNum(p.projPts)) return { ppg: p.projPts / 17, basis: "projection", snapShare: null, oppPg: null };
+      return null;
+    };
+    function peersWithRoles(player) {
+      return state.players
         .filter((p) => p.team === player.team && p.pos === player.pos && p.id !== player.id)
         .map((p) => ({ player: p, role: roleOf(p) }))
         .filter((x) => x.role !== null)
         .sort((a, b) => b.role.ppg - a.role.ppg);
+    }
+    function nextManUpFor(player) {
+      const myPpg = player.form && isNum(player.form.ppg) ? player.form.ppg : null;
+      const peers = peersWithRoles(player);
       const top = peers[0];
       const ahead = peers.filter((x) => myPpg === null || x.role.ppg > myPpg);
       if (top && top.role.ppg >= 8 && isOutPlayer(top.player) && ahead.length > 0 && ahead.every((x) => isOutPlayer(x.player))) {
@@ -638,13 +640,49 @@
       }
       return null;
     }
+    /* Contested role: the price model can't see depth-chart battles or hype.
+       Two shapes: (a) a healthy peer is next man up for a vacated role and
+       this player is a plausible challenger for that same role; (b) a healthy
+       timeshare where the player and a peer both hold meaningful roles and
+       neither has separated. Either way the gate stands down and the raw
+       model read shows with this flag — the price never moves. */
+    function contestedRoleFor(player) {
+      const myRole = roleOf(player);
+      if (!myRole) return null;
+      const peers = peersWithRoles(player);
+      const healthy = peers.filter((x) => !isOutPlayer(x.player));
+      for (const h of healthy) {
+        const v = nextManUpFor(h.player);
+        if (v && h.role.ppg > 0 && myRole.ppg >= 0.4 * h.role.ppg) {
+          return { kind: "contested_role", contestedWith: h.player.name, vacated: v };
+        }
+      }
+      const sorted = healthy.slice().sort((a, b) => b.role.ppg - a.role.ppg);
+      if (sorted.length >= 2 && sorted[0].role.ppg >= 6) {
+        const a = sorted[0], b = sorted[1];
+        const isPlayer = (x) => x.player.id === player.id;
+        if ((isPlayer(a) || isPlayer(b)) && b.role.ppg >= 0.5 * a.role.ppg) {
+          const other = isPlayer(a) ? b : a;
+          return { kind: "contested_role", contestedWith: other.player.name, vacated: null };
+        }
+      }
+      return null;
+    }
+    function faabSituation(player) {
+      if (isOutPlayer(player)) {
+        return { kind: "player_out", injuredName: null, injuredStatus: player.injury || "out", injuredPpg: null, injuredSnapShare: null, injuredOppPg: null, roleBasis: null };
+      }
+      if (!player.team || !PRICED.includes(player.pos)) return null;
+      return nextManUpFor(player) || contestedRoleFor(player);
+    }
 
     /* Demand gate (mirrors the full app): the quantile model trained only
        on players who actually drew bids, so it cannot say "$0 — nobody
        wants him" and cannot price a star who would never be dropped.
        Below-replacement projection with no startable form collapses to
        $0–$1; a $20+ projection on the $200 scale gets no invented number.
-       The gate stands down for next-man-up (real demand) and for players
+       The gate stands down for next-man-up and contested-role (real demand:
+       a vacated role or a genuine battle for one) and for players
        who are out themselves (a legitimate stash question). */
     function faabGate(player, situation, pred, f) {
       const pricing = gatePricing();
@@ -668,7 +706,7 @@
         if (entry && entry.value >= 20) {
           demand.state = "out_of_range";
           clearingQuantiles = null; neededBid = null;
-        } else if (!situation || situation.kind !== "next_man_up") {
+        } else if (!situation || (situation.kind !== "next_man_up" && situation.kind !== "contested_role")) {
           const formWeak = ppgBefore === null || replPpg === null || ppgBefore < replPpg;
           const lastWeekPop = prevWeekPts !== null && prevWeekPts >= 15;
           if ((entry ? entry.value : 0) === 0 && formWeak && !lastWeekPop) {
@@ -865,6 +903,13 @@
             (situation.injuredSnapShare !== null ? " on a " + Math.round(situation.injuredSnapShare * 100) + "% snap share" : "") +
             ". The price below is built from " + esc(player.name) + "'s own numbers as a backup (" + fmtNum(f.ppgBefore) + " PPG) — the model has no injury input, so expect competition at the top of this range, or past it.</p>" +
             '<button type="button" class="linkbtn" data-explain="faabSituation">Why the price can\'t see this</button></div>';
+        } else if (situation.kind === "contested_role") {
+          html += '<div class="callout"><p class="t">Contested role the price model can\'t see</p><p>' +
+            esc(player.name) + " is challenging " + esc(situation.contestedWith) + " for the lead " + esc(player.pos) + " role" +
+            (player.team ? " on " + esc(player.team) : "") +
+            (situation.vacated ? " — " + esc(situation.vacated.injuredName) + " (" + esc(situation.vacated.injuredStatus) + ") is out, and the vacated role produced " + fmtNum(situation.vacated.injuredPpg) + " PPG" : ", and neither back has separated") +
+            ". The price below is built from " + esc(player.name) + "'s own numbers (" + fmtNum(f.ppgBefore) + " PPG) — the model has no depth-chart or hype input, so it can't see preseason beliefs, camp reports, or social-media buzz. When managers bid on the chance he wins the job, expect real bidding past the top of this range.</p>" +
+            '<button type="button" class="linkbtn" data-explain="faabSituation">Why the price can\'t see this</button></div>';
         } else {
           html += '<div class="callout bad"><p class="t">He\'s out himself</p><p>' +
             esc(player.name) + " is " + esc(situation.injuredStatus) + ". The model prices his past production and can't see that he won't play — only bid on him as a stash.</p></div>";
@@ -940,6 +985,7 @@
         statCell("Rival FAAB max", fmtMoney(fs.faabMax)) + statCell("Rival FAAB med", fmtMoney(fs.faabMed)) +
         statCell("Position", player.pos) + statCell("Week", String(week)) +
         (situation && situation.kind === "next_man_up" ? statCell("Vacated role PPG", fmtNum(situation.injuredPpg)) + statCell("Role snap share", situation.injuredSnapShare === null ? "—" : fmtPct(situation.injuredSnapShare)) : "") +
+        (situation && situation.kind === "contested_role" ? statCell("Contested with", situation.contestedWith) : "") +
         "</div>" +
         '<p class="note">Gathered with the input snapshot (through the most recent completed week / Wednesday run). Missing inputs stay missing — the model routes around them, same as in training. 2,404 bids, 2020–2026, losers included.</p>';
       html += disclosure("faabinputs", "Model inputs", "Week " + week, inputs);
