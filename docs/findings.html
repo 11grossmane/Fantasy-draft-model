@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" href="data:," />
+    <title>Draft Day Findings</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #f4f4ef; --surface: #ffffff; --surface-alt: #eceee6; --border: #d8dbcd;
+        --text: #1a211b; --dim: #5c665c; --accent: #1d7a3f; --accent-strong: #145c2e;
+        --on-accent: #ffffff; --bad: #b3402e; --amber: #9a6206; --radius: 10px;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #10140f; --surface: #1a201a; --surface-alt: #232b22; --border: #333d31;
+          --text: #e8ede4; --dim: #9aa695; --accent: #43b364; --accent-strong: #6fce8a;
+          --on-accent: #0c140d; --bad: #e0735f; --amber: #e0a63f;
+        }
+      }
+      * { box-sizing: border-box; }
+      body { margin: 0; background: var(--bg); color: var(--text);
+             font-family: "Barlow", system-ui, sans-serif; line-height: 1.55; }
+      main { max-width: 720px; margin: 0 auto; padding: 1.2rem 1rem 3rem; }
+      h1 { font-family: "Barlow Condensed", sans-serif; font-size: 2rem; margin: 0.4rem 0 0.2rem; letter-spacing: 0.01em; }
+      h2 { font-family: "Barlow Condensed", sans-serif; font-size: 1.45rem; margin: 2.2rem 0 0.6rem;
+           padding-top: 1.4rem; border-top: 1px solid var(--border); }
+      h3 { font-size: 1.05rem; margin: 1.4rem 0 0.4rem; }
+      p, li { font-size: 0.98rem; }
+      .kicker { color: var(--dim); font-size: 0.9rem; margin: 0 0 0.4rem; }
+      .lede { font-size: 1.08rem; }
+      .back { display: inline-block; margin-bottom: 0.6rem; color: var(--accent-strong);
+              font-weight: 600; text-decoration: none; font-size: 0.92rem; }
+      .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+              padding: 1rem 1.1rem; margin: 0.9rem 0; }
+      .bignum { font-family: "Barlow Condensed", sans-serif; font-size: 2rem; font-weight: 700;
+                color: var(--accent-strong); line-height: 1.1; }
+      .bignum small { font-size: 1rem; font-weight: 600; color: var(--dim); }
+      .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; margin: 0.9rem 0; }
+      @media (max-width: 520px) { .grid { grid-template-columns: 1fr; } }
+      .stat { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+              padding: 0.8rem 0.9rem; }
+      .stat p { margin: 0.3rem 0 0; font-size: 0.9rem; color: var(--dim); }
+      .grade { display: inline-block; font-size: 0.72rem; font-weight: 700; border: 1px solid var(--border);
+               border-radius: 999px; padding: 0.05rem 0.5rem; color: var(--dim); vertical-align: middle;
+               margin-left: 0.4rem; }
+      .warn { border-left: 3px solid var(--amber); padding-left: 0.9rem; color: var(--dim); font-size: 0.92rem; }
+      ul.tight li { margin-bottom: 0.55rem; }
+      strong.k { color: var(--text); }
+      footer { margin-top: 2.5rem; padding-top: 1.2rem; border-top: 1px solid var(--border);
+               color: var(--dim); font-size: 0.85rem; }
+      footer p { font-size: 0.85rem; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <a class="back" href="index.html">← Back to the model</a>
+      <p class="kicker">Draft Day Model · research findings</p>
+      <h1>What ~2,000 auction seasons say about winning your draft</h1>
+      <p class="lede">Almost nothing about <em>how much</em> you spend, <em>where</em> you spend it, or <em>when</em> you spend it predicts winning. What predicts winning is <strong>what your roster looks like in December</strong>. Spend only matters insofar as it converts into roster — and the conversion rate, not the spend, is the skill.</p>
+
+      <h2>Team makeup: the champion fingerprint</h2>
+      <div class="grid">
+        <div class="stat"><div class="bignum">60% <small>vs 16%</small></div>
+          <p>of champions field 2+ top-5 finishers including a top-5 RB — vs 16% of non-playoff teams. Median champion: 3 top-5 finishers. Median non-playoff team: 1.</p></div>
+        <div class="stat"><div class="bignum">89%</div>
+          <p>of champions' top-6 producers were drafted by them — not traded for, not wired. December rosters are built in the auction room.</p></div>
+        <div class="stat"><div class="bignum">+0.4 <small>Grade A</small></div>
+          <p>Draft-class value-over-replacement is the top controllable draft signal, across every format tested. In auction superflex it runs up to +0.7.</p></div>
+        <div class="stat"><div class="bignum">2 <small>good QBs</small></div>
+          <p>In superflex, <em>finishing</em> with two good QBs predicts winning (+0.23 to +0.37). What you <em>spend</em> on QB predicts nothing (≈0, confirmed null three times).</p></div>
+      </div>
+      <div class="card">
+        <h3 style="margin-top:0">Two more durable edges</h3>
+        <ul class="tight">
+          <li><strong class="k">Lineup efficiency is a trait, not luck.</strong> Setting your best lineup predicts residual wins (+0.45) and persists year to year (+0.48) — in every format tested.</li>
+          <li><strong class="k">Conversion beats concentration.</strong> Managers who turn dollars into starters win at any budget shape; piling money into one tier without converting adds nothing.</li>
+        </ul>
+      </div>
+
+      <h2>What players to target</h2>
+      <ul class="tight">
+        <li><strong class="k">Buy elite production in the middle of the auction.</strong> The median eventual top-10 scorer cost <strong>$19</strong> — only 2.7% of top-10 finishers cost $41+. <span class="grade">A</span></li>
+        <li><strong class="k">RB $21–40 is the sweet tier:</strong> 80.7% starter hit rate with the best value per dollar. WR value concentrates $6–20. QB at $41+ is near-certain (96.6% hit) but you're paying full price for certainty — mid-tier QBs return more per dollar. <span class="grade">A</span></li>
+        <li><strong class="k">Throw $1–2 darts.</strong> End-of-draft $1–2 picks hit starter tier ~22% of the time. Cheap depth has real yield. <span class="grade">A</span></li>
+        <li><strong class="k">Buy production on good offenses.</strong> Picks at $10+ on top-third offenses hit starter tier 88.7% vs 58.0% on bottom-third offenses. <span class="grade">A</span></li>
+        <li><strong class="k">Don't pay for expensive youth.</strong> Players 24 and under at $25+ busted 22.8% vs 14.4% for prime-age players. <span class="grade">A</span></li>
+        <li><strong class="k">Injury history is a real flag.</strong> Players who missed 5+ games the prior season hit at 63% vs 74% for durable players at $10+. The market does not fully price it. <span class="grade">A</span></li>
+        <li><strong class="k">Avoid expensive end-of-auction leftovers.</strong> Among $20+ picks, the last quartile of nominations returns the least value per dollar. Nominate your expensive targets early. <span class="grade">B</span></li>
+      </ul>
+
+      <h2>Where the money goes</h2>
+      <ul class="tight">
+        <li><strong class="k">Champions spend like everyone else.</strong> Title teams' budget shares are field-shaped — roughly 31% RB / 36% WR / 21% QB / 13% TE — with a tilt toward a cheap QB1 (~12% of budget). Nobody outside one league wins by stacking 47% on RB; that's a local fingerprint, not a format law. <span class="grade">A</span></li>
+        <li><strong class="k">Track conversion, not allocation.</strong> Share of spend landing on eventual starters predicts points at +0.42. Positional spend shares, top-heavy concentration, and early-vs-late timing don't differentiate winners. <span class="grade">B+</span></li>
+        <li><strong class="k">Keep catastrophic overpays small.</strong> Dollars burned on ≥$25 picks that finish below replacement is a real, scored behavior (−0.25). In auction redraft, under ~$15/season is the controllable target. <span class="grade">A</span></li>
+        <li><strong class="k">In-season: hold FAAB for late.</strong> Late-season deployment helps (+0.18). Total FAAB spent is mildly positive but it's an activity marker, not a lever — "spend more" is not the advice. And churning the wire is fine everywhere it was tested. <span class="grade">B</span></li>
+      </ul>
+
+      <h2>Killed by the data</h2>
+      <div class="card">
+        <ul class="tight" style="margin-bottom:0">
+          <li><strong class="k">"Spend big on QB in superflex."</strong> Spend is null; <em>finishing</em> with two good QBs is the thing. The most expensive mistake in the draft room is conflating the two.</li>
+          <li><strong class="k">"Target young players."</strong> At $25+, youth busts more, not less.</li>
+          <li><strong class="k">"Schedule luck decides seasons."</strong> Points scored predict wins at 0.82 vs schedule luck at 0.52, in every league tested. (One league where luck dominated is the outlier, not the rule.)</li>
+          <li><strong class="k">Strength of schedule as a draft input.</strong> Tested, null, validated.</li>
+          <li><strong class="k">The "$40 QB is title poison" rule.</strong> Didn't replicate outside its home league — but there's no edge there either, so don't pay for the story.</li>
+          <li><strong class="k">Exact budget formulas (47% RB, $15 bust line) as universal laws.</strong> League-specific framing; the cross-league versions are the counts and behaviors above.</li>
+        </ul>
+      </div>
+
+      <footer>
+        <p><strong>How this was built.</strong> Hypotheses were frozen in writing before touching fresh data, then confirmed cold on new leagues — twice. Corpus: 37 public Sleeper chains plus 108 targeted 10-team auction superflex league-seasons, ~2,000 auction manager-seasons and ~41,000 auction picks total. Grades: A = confirmed across cold waves with information fraction ≥1; B = confirmed but thinner or noisier; killed = falsified or null-validated. A few patterns (churn penalty, luck-over-points, exact bust-dollar lines) hold only in the home league's history and are labeled as such — they don't travel.</p>
+        <p>Figures are correlations and hit rates from completed seasons, 2018–2026. They describe what won, not a guarantee.</p>
+      </footer>
+    </main>
+  </body>
+</html>
