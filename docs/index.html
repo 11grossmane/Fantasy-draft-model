@@ -82,9 +82,10 @@
 
       .vintage { margin-top: 0.45rem; font-size: 0.78rem; color: var(--dim); }
 
-      .tabs { display: flex; gap: 0.4rem; margin-top: 0.7rem; }
+      .tabs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.4rem; margin-top: 0.7rem; }
+      @media (min-width: 640px) { .tabs { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
       .tab {
-        flex: 1; padding: 0.55rem 0.5rem; border-radius: 999px; border: 1px solid var(--border);
+        min-width: 0; padding: 0.55rem 0.4rem; border-radius: 999px; border: 1px solid var(--border);
         background: var(--surface); color: var(--text); font: inherit; font-weight: 600; cursor: pointer;
       }
       .tab[aria-selected="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
@@ -181,6 +182,50 @@
       .empty .dim { color: var(--dim); font-size: 0.9rem; }
       .err { color: var(--bad); }
 
+      .perfect-intro h2 { margin: 0; font-size: 1.45rem; line-height: 1.15; }
+      .perfect-intro p { margin: 0.4rem 0 0; color: var(--dim); }
+      .subtabs { display: grid; grid-template-columns: 1fr 1fr; gap: 0.35rem; margin-top: 0.75rem; }
+      .subtab {
+        padding: 0.55rem 0.45rem; border: 1px solid var(--border); border-radius: 7px;
+        background: var(--surface-alt); color: var(--text); font: inherit; font-size: 0.9rem; font-weight: 600; cursor: pointer;
+      }
+      .subtab[aria-selected="true"] { background: var(--text); border-color: var(--text); color: var(--surface); }
+      .audit-stack { margin-top: 0.75rem; border-top: 1px solid var(--border); }
+      .audit-row { display: grid; grid-template-columns: 4.4rem minmax(0, 1fr); gap: 0.7rem; padding: 0.68rem 0; border-bottom: 1px solid var(--border); }
+      .audit-mark { font-family: "Barlow Condensed", "Barlow", sans-serif; font-weight: 700; color: var(--accent-strong); }
+      .audit-mark.fail { color: var(--bad); }
+      .audit-row b { display: block; font-size: 0.92rem; }
+      .audit-row p { margin: 0.12rem 0 0; font-size: 0.86rem; color: var(--dim); }
+      .season-picker, .build-picker { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.7rem; }
+      .season-btn, .build-btn {
+        border: 1px solid var(--border); background: var(--surface); color: var(--text); border-radius: 6px;
+        padding: 0.4rem 0.58rem; font: inherit; font-size: 0.84rem; font-weight: 600; cursor: pointer;
+      }
+      .season-btn[aria-pressed="true"], .build-btn[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+      .roster { margin-top: 0.55rem; }
+      .roster-row {
+        display: grid; grid-template-columns: 4.5rem minmax(0, 1fr) 3.4rem 4.5rem;
+        gap: 0.35rem; align-items: center; padding: 0.42rem 0; border-top: 1px solid var(--border);
+      }
+      .roster-row:first-child { border-top: none; }
+      .roster-head { padding-top: 0; color: var(--dim); font-size: 0.68rem; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; }
+      .roster-name { min-width: 0; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .roster-name small { display: block; color: var(--dim); font-size: 0.72rem; font-weight: 500; }
+      .roster-price, .roster-points { text-align: right; }
+      .roster-row > span:first-child { overflow-wrap: anywhere; }
+      .roster-total { font-weight: 700; background: var(--surface-alt); margin: 0 -0.45rem; padding: 0.48rem 0.45rem; border-radius: 5px; }
+      .audit-metrics { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.4rem; margin-top: 0.55rem; }
+      .audit-metric { background: var(--surface-alt); border-radius: 6px; padding: 0.5rem; }
+      .audit-metric span { display: block; color: var(--dim); font-size: 0.68rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+      .audit-metric b { display: block; margin-top: 0.1rem; font-size: 1rem; }
+      .build-summary { display: flex; flex-wrap: wrap; gap: 0.4rem 0.9rem; margin-top: 0.5rem; color: var(--dim); font-size: 0.82rem; }
+      .method-list { margin: 0.45rem 0 0; padding-left: 1.1rem; color: var(--dim); font-size: 0.85rem; }
+      .method-list li + li { margin-top: 0.25rem; }
+      @media (max-width: 390px) {
+        .roster-row { grid-template-columns: 3.7rem minmax(0, 1fr) 3rem 3.8rem; font-size: 0.9rem; }
+        .audit-metrics { grid-template-columns: 1fr; }
+      }
+
       footer { margin-top: 2rem; border-top: 1px solid var(--border); padding-top: 0.8rem; font-size: 0.78rem; color: var(--dim); }
       footer p { margin: 0.3rem 0; }
 
@@ -202,7 +247,7 @@
   </head>
   <body>
     <main>
-      <section aria-label="Player picker" class="picker">
+      <section id="player-picker" aria-label="Player picker" class="picker">
         <label>
           <span hidden>Search for a player</span>
           <input id="search" class="search-input" type="search" autocomplete="off"
@@ -215,10 +260,11 @@
       <div class="tabs" role="tablist" aria-label="Views">
         <button type="button" class="tab" role="tab" id="tab-player" aria-selected="true">Player</button>
         <button type="button" class="tab" role="tab" id="tab-faab" aria-selected="false">FAAB Predictor</button>
+        <button type="button" class="tab" role="tab" id="tab-perfect" aria-selected="false">Perfect Teams</button>
         <a class="tab" href="findings.html" style="text-decoration:none;display:flex;align-items:center;justify-content:center;">Findings</a>
       </div>
 
-      <section class="disclosure" aria-label="League settings">
+      <section id="league-settings" class="disclosure" aria-label="League settings">
         <button type="button" class="head" id="settings-head" aria-expanded="false">
           <span>League settings</span>
           <span><span class="aside" id="settings-aside">10 teams · $200 · superflex</span> <span class="chev" id="settings-chev">▸</span></span>
@@ -265,6 +311,7 @@
 
       <section id="view-player" aria-label="Player lookup"></section>
       <section id="view-faab" aria-label="FAAB Predictor" hidden></section>
+      <section id="view-perfect" aria-label="Perfect Teams" hidden></section>
 
       <footer id="footer"></footer>
     </main>
@@ -279,6 +326,7 @@
       </div>
     </div>
 
+    <script src="assets/data/perfect-teams.js"></script>
     <script>
     "use strict";
     /* ═══ Inference engine ═══
@@ -562,6 +610,7 @@
       scorer: null, faabModel: null, faabTables: null,
       settings: { teams: 10, superflex: true, budget: 200, slots: { qb: 1, rb: 2, wr: 2, te: 1, flex: 1, sflex: 1, bench: 6 } },
       pricing: null, selectedId: null, view: "player", bid: 20,
+      perfectMode: "hindsight", perfectSeason: 2025, projectedBuild: 0,
     };
 
     function fmtNum(v, d) { if (v === null || v === undefined || Number.isNaN(v)) return "—"; return v.toFixed(d === undefined ? 1 : d); }
@@ -955,12 +1004,169 @@
       wireDisclosures(root); wireExplainers(root);
     }
 
+    const PROJECTED_SETTINGS = { teams: 10, superflex: true, budget: 200, slots: { qb: 1, rb: 2, wr: 3, te: 1, flex: 1, sflex: 1, bench: 6 } };
+    const PROJECTED_SLOTS = ["QB", "RB", "RB", "WR", "WR", "WR", "TE", "FLEX", "SUPER_FLEX", "BN", "BN", "BN", "BN", "BN", "BN"];
+    function eligibleForSlot(pos, slot) {
+      if (slot === "BN" || slot === "SUPER_FLEX") return PRICED.includes(pos);
+      if (slot === "FLEX") return pos === "RB" || pos === "WR" || pos === "TE";
+      return pos === slot;
+    }
+    function tinyTie(id, seed) {
+      let h = 2166136261 ^ seed;
+      const text = String(id);
+      for (let i = 0; i < text.length; i++) { h ^= text.charCodeAt(i); h = Math.imul(h, 16777619); }
+      return ((h >>> 0) % 1000) / 100000;
+    }
+    function solveProjectedBuild(candidates, previous, buildNo, attempt) {
+      const frequency = new Map();
+      previous.forEach((team) => team.rows.forEach((r) => frequency.set(r.id, (frequency.get(r.id) || 0) + 1)));
+      const penalty = previous.length ? 18 + buildNo * 3 + attempt * 7 : 0;
+      const adjusted = (p) => p.projPts - penalty * (frequency.get(p.id) || 0) + tinyTie(p.id, buildNo * 101 + attempt);
+      const team = [], used = new Set();
+      let spent = 0;
+      for (let si = 0; si < PROJECTED_SLOTS.length; si++) {
+        const slot = PROJECTED_SLOTS[si];
+        const reserve = PROJECTED_SLOTS.length - si - 1;
+        const available = candidates.filter((p) => !used.has(p.id) && eligibleForSlot(p.pos, slot) && spent + p.cost + reserve <= 199);
+        if (!available.length) return null;
+        available.sort((a, b) => {
+          const av = adjusted(a) / Math.pow(Math.max(a.cost, 1), 0.34);
+          const bv = adjusted(b) / Math.pow(Math.max(b.cost, 1), 0.34);
+          return bv - av || b.projPts - a.projPts || a.name.localeCompare(b.name);
+        });
+        const pick = available[0];
+        team.push({ id: pick.id, name: pick.name, pos: pick.pos, cost: pick.cost, projPts: pick.projPts, slot: slot });
+        used.add(pick.id); spent += pick.cost;
+      }
+      for (let pass = 0; pass < 180; pass++) {
+        let best = null;
+        for (let i = 0; i < team.length; i++) {
+          const old = team[i];
+          for (const cand of candidates) {
+            if ((used.has(cand.id) && cand.id !== old.id) || !eligibleForSlot(cand.pos, old.slot)) continue;
+            const nextSpent = spent - old.cost + cand.cost;
+            if (nextSpent > 199) continue;
+            const gain = adjusted(cand) - adjusted(old);
+            if (gain > 0.0001 && (!best || gain > best.gain)) best = { i: i, old: old, cand: cand, gain: gain, nextSpent: nextSpent };
+          }
+        }
+        if (!best) break;
+        used.delete(best.old.id); used.add(best.cand.id);
+        team[best.i] = { id: best.cand.id, name: best.cand.name, pos: best.cand.pos, cost: best.cand.cost, projPts: best.cand.projPts, slot: best.old.slot };
+        spent = best.nextSpent;
+      }
+      team.push({ id: "def-at-draft", name: "Defense at draft", pos: "DEF", cost: 1, projPts: null, slot: "DEF" });
+      return { rows: team, cost: spent + 1, points: team.reduce((sum, r) => sum + (isNum(r.projPts) ? r.projPts : 0), 0) };
+    }
+    function buildDifference(a, b) {
+      const bIds = new Set(b.rows.filter((r) => r.pos !== "DEF").map((r) => r.id));
+      return a.rows.filter((r) => r.pos !== "DEF" && !bIds.has(r.id)).length;
+    }
+    function projectedTeams() {
+      const pricing = computeAuctionValues(projectionPool(), PROJECTED_SETTINGS);
+      const candidates = state.players.map((p) => {
+        const priced = pricing.values.get(p.id);
+        return priced && priced.value > 0 && isNum(p.projPts) && PRICED.includes(p.pos)
+          ? { id: p.id, name: p.name, pos: p.pos, projPts: p.projPts, cost: priced.value }
+          : null;
+      }).filter(Boolean);
+      const builds = [];
+      for (let buildNo = 0; buildNo < 10; buildNo++) {
+        let accepted = null;
+        for (let attempt = 0; attempt < 120; attempt++) {
+          const candidate = solveProjectedBuild(candidates, builds, buildNo, attempt);
+          if (candidate && builds.every((prior) => buildDifference(candidate, prior) >= 4)) { accepted = candidate; break; }
+        }
+        if (!accepted) break;
+        builds.push(accepted);
+      }
+      builds.sort((a, b) => b.points - a.points || a.cost - b.cost);
+      builds.forEach((b, i) => {
+        b.rank = i + 1;
+        b.nearestDifference = builds.length < 2 ? null : Math.min.apply(null, builds.filter((x) => x !== b).map((x) => buildDifference(b, x)));
+      });
+      return builds;
+    }
+    function rosterRowsHtml(rows, projected) {
+      let html = '<div class="roster"><div class="roster-row roster-head"><span>Slot</span><span>Player</span><span class="roster-price">$</span><span class="roster-points">Pts</span></div>';
+      rows.forEach((r) => {
+        html += '<div class="roster-row"><span class="num">' + esc(r.slot) + '</span><span class="roster-name">' + esc(r.name) + '<small>' + esc(r.pos) + '</small></span>' +
+          '<span class="roster-price num">' + fmtMoney(r.cost !== undefined ? r.cost : r.hammerPrice) + '</span><span class="roster-points num">' +
+          (projected && !isNum(r.projPts) ? '—' : fmtNum(projected ? r.projPts : r.seasonPoints, 1)) + '</span></div>';
+      });
+      return html + '</div>';
+    }
+    function renderHindsightPerfect() {
+      const data = window.PERFECT_DATA;
+      const season = state.perfectSeason;
+      const rows = data.hindsight.filter((r) => r.season === season);
+      const a = data.audit[String(season)];
+      let html = '<div class="card"><div class="panel-head"><h3>What survives the audit</h3><span class="chip plain">6 seasons</span></div>' +
+        '<div class="audit-stack"><div class="audit-row"><span class="audit-mark fail">FAIL</span><div><b>Discount luck</b><p>Four of five covered seasons bust $200 at typical cross-league prices. These teams were purchasable, but not reproducible.</p></div></div>' +
+        '<div class="audit-row"><span class="audit-mark">66%</span><div><b>Projection gap</b><p>Preseason-projection builds averaged 66% of hindsight-perfect points. About a third came from breakouts and discounts the forecasts did not see.</p></div></div>' +
+        '<div class="audit-row"><span class="audit-mark">7–8 QB</span><div><b>The recurring shape</b><p>Superflex-era optima hoard quarterbacks and still find 3–8 hits at $1–3.</p></div></div></div>' +
+        '<p class="note">Across these seasons, 18–31% of top-100 scorers went undrafted. “Perfect” means optimal among players the league actually drafted.</p></div>';
+      html += '<div class="season-picker" aria-label="Hindsight season">' + [2020, 2021, 2022, 2023, 2024, 2025].map((y) =>
+        '<button type="button" class="season-btn" data-season="' + y + '" aria-pressed="' + String(y === season) + '">' + y + '</button>').join('') + '</div>';
+      html += '<div class="card"><div class="panel-head"><h3>' + season + ' hindsight optimum</h3><span class="chip value">' + fmtNum(a.totalPts, 1) + ' pts</span></div>' +
+        '<p class="note" style="margin-top:0.3rem">Exact integer-program optimum: real hammer prices, real end-of-season points, actual roster slots, undrafted players excluded. League scoring: no PPR, 0.5 point per rushing or receiving first down, and 4 points per passing touchdown.</p>' +
+        rosterRowsHtml(rows, false) + '<div class="roster-row roster-total"><span>Total</span><span>16 players</span><span class="roster-price num">' + fmtMoney(a.totalPrice) + '</span><span class="roster-points num">' + fmtNum(a.totalPts, 1) + '</span></div></div>';
+      let discountText;
+      if (!a.discountCovered) discountText = 'No typical-price coverage for 2020.';
+      else {
+        const savedText = a.saved >= 0 ? '$' + a.saved.toFixed(2) + ' saved' : '$' + Math.abs(a.saved).toFixed(2) + ' more than typical overall';
+        discountText = a.halfPriceCount + '/15 below half of typical price · ' + savedText + ' · repriced ' + fmtMoney(a.repricedTotal) + ' · fits $200: ' + (a.fitsTypical ? 'YES' : 'NO');
+      }
+      html += '<div class="card"><div class="panel-head"><h3>' + season + ' feasibility audit</h3><span class="chip ' + (a.fitsTypical === false ? 'overpay' : 'plain') + '">' + (a.fitsTypical === null ? 'No coverage' : a.fitsTypical ? 'Fits repriced' : 'Busts $200') + '</span></div>' +
+        '<p style="margin:0.5rem 0 0"><b>Discount luck:</b> ' + esc(discountText) + '</p>' +
+        '<p style="margin:0.45rem 0 0"><b>Projection gap:</b> ' + (isNum(a.projectionPct) ? fmtNum(a.projectionPct, 1) + '% of perfect' : 'No preseason-projection coverage') + '</p>' +
+        '<div class="audit-metrics"><div class="audit-metric"><span>Quarterbacks</span><b class="num">' + a.qbCount + '</b></div>' +
+        '<div class="audit-metric"><span>$1–3 hits</span><b class="num">' + a.oneToThreeCount + '</b></div>' +
+        '<div class="audit-metric"><span>$30+ players</span><b class="num">' + a.thirtyPlusCount + '</b></div></div></div>';
+      return html;
+    }
+    function renderProjectedPerfect() {
+      const builds = projectedTeams();
+      if (!builds.length) return '<div class="card empty"><p><b>No feasible projected builds</b></p><p class="dim">The current projection snapshot did not contain enough priced players to fill the roster.</p></div>';
+      state.projectedBuild = Math.min(state.projectedBuild, builds.length - 1);
+      const selected = builds[state.projectedBuild];
+      let html = '<div class="card"><div class="panel-head"><h3>Projected 2027 top 10</h3><span class="chip value">' + builds.length + ' builds</span></div>' +
+        '<p style="margin:0.45rem 0 0">The best our current projections can see — both inputs are our own projections, and the hindsight audit shows preseason projections capture ~66% of a true perfect team.</p>' +
+        '<ul class="method-list"><li>Projected season points are the value; model fair price is the cost.</li><li>$200 cap; QB, 2 RB, 3 WR, TE, FLEX, SUPER_FLEX, DEF and 6 bench spots.</li><li>Greedy fill, then single-player local swaps. Reused players are penalized until every build replaces at least four players from every earlier build.</li></ul>' +
+        '<p class="note">This page currently carries the ' + esc(String(state.meta.targetSeason)) + ' projection snapshot, dated ' + esc(state.meta.vintageShort) + '. These 2027 planning builds recompute from whatever projection snapshot is baked into the site after each refresh.</p></div>';
+      html += '<div class="build-picker" aria-label="Projected team build">' + builds.map((b, i) =>
+        '<button type="button" class="build-btn" data-build="' + i + '" aria-pressed="' + String(i === state.projectedBuild) + '">#' + (i + 1) + '</button>').join('') + '</div>';
+      html += '<div class="card"><div class="panel-head"><h3>Build #' + selected.rank + '</h3><span class="chip value">' + fmtNum(selected.points, 1) + ' proj pts</span></div>' +
+        '<div class="build-summary"><span><b class="num">' + fmtMoney(selected.cost) + '</b> spent</span><span><b class="num">' + fmtMoney(200 - selected.cost) + '</b> unspent</span><span><b class="num">' + selected.nearestDifference + '</b> minimum player changes</span></div>' +
+        rosterRowsHtml(selected.rows, true) + '<div class="roster-row roster-total"><span>Total</span><span>16 spots</span><span class="roster-price num">' + fmtMoney(selected.cost) + '</span><span class="roster-points num">' + fmtNum(selected.points, 1) + '</span></div>' +
+        '<p class="note">The embedded pool has no projected defense rows, so each build reserves $1 and one roster spot for “Defense at draft.” The point total is the 15-player offensive subtotal; no defense points are invented.</p></div>';
+      return html;
+    }
+    function renderPerfect() {
+      const root = $("view-perfect");
+      root.innerHTML = '<div class="card perfect-intro"><h2>Perfect teams, with hindsight kept honest</h2><p>See the exact 2020–2025 optimum, test whether it was reproducible, then use the same lesson to plan a 2027 auction.</p>' +
+        '<div class="subtabs" role="tablist" aria-label="Perfect team views"><button type="button" class="subtab" id="perfect-hindsight" aria-selected="' + String(state.perfectMode === 'hindsight') + '">Hindsight 2020–25</button>' +
+        '<button type="button" class="subtab" id="perfect-projected" aria-selected="' + String(state.perfectMode === 'projected') + '">Projected 2027</button></div></div>' +
+        (state.perfectMode === "hindsight" ? renderHindsightPerfect() : renderProjectedPerfect());
+      $("perfect-hindsight").addEventListener("click", () => { state.perfectMode = "hindsight"; renderPerfect(); });
+      $("perfect-projected").addEventListener("click", () => { state.perfectMode = "projected"; renderPerfect(); });
+      root.querySelectorAll("[data-season]").forEach((btn) => btn.addEventListener("click", () => { state.perfectSeason = Number(btn.getAttribute("data-season")); renderPerfect(); }));
+      root.querySelectorAll("[data-build]").forEach((btn) => btn.addEventListener("click", () => { state.projectedBuild = Number(btn.getAttribute("data-build")); renderPerfect(); }));
+    }
+
     function render() {
+      const perfect = state.view === "perfect";
+      $("player-picker").hidden = perfect;
+      $("league-settings").hidden = perfect;
       $("view-player").hidden = state.view !== "player";
       $("view-faab").hidden = state.view !== "faab";
+      $("view-perfect").hidden = !perfect;
       $("tab-player").setAttribute("aria-selected", String(state.view === "player"));
       $("tab-faab").setAttribute("aria-selected", String(state.view === "faab"));
-      if (state.view === "player") renderPlayer(); else renderFaab();
+      $("tab-perfect").setAttribute("aria-selected", String(perfect));
+      if (state.view === "player") renderPlayer();
+      else if (state.view === "faab") renderFaab();
+      else renderPerfect();
     }
 
     function pickPlayer(id) {
@@ -1123,9 +1329,10 @@
         // Remember the active tab for this browser tab, so the back button
         // from Findings (or a reload) returns to the tab you were on.
         const rememberView = () => { try { sessionStorage.setItem("ddm-view", state.view); } catch (e) {} };
-        try { const v = sessionStorage.getItem("ddm-view"); if (v === "faab" || v === "player") state.view = v; } catch (e) {}
+        try { const v = sessionStorage.getItem("ddm-view"); if (v === "faab" || v === "player" || v === "perfect") state.view = v; } catch (e) {}
         $("tab-player").addEventListener("click", () => { state.view = "player"; rememberView(); render(); });
         $("tab-faab").addEventListener("click", () => { state.view = "faab"; rememberView(); render(); });
+        $("tab-perfect").addEventListener("click", () => { state.view = "perfect"; rememberView(); render(); });
         $("modal-close").addEventListener("click", closeExplainer);
         $("modal-back").addEventListener("click", (e) => { if (e.target === $("modal-back")) closeExplainer(); });
         // Default selection: highest projected player, so the page opens on a real result.
